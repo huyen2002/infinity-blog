@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { Dialog, Transition } from "@headlessui/react";
+import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
 function Profile() {
   return (
@@ -50,8 +50,12 @@ export function SmProfile() {
 }
 
 function EditProfile() {
+  interface FormValues {
+    name: string;
+    bio: string;
+  }
   const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset } = useForm<FormValues>();
   function closeModal() {
     setIsOpen(false);
   }
@@ -60,10 +64,14 @@ function EditProfile() {
     setIsOpen(true);
   }
 
-  function onSubmit(data) {
+  // function onSubmit(data: FormValues) {
+  //   console.log(data);
+  //   setIsOpen(false);
+  // }
+  const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
     console.log(data);
     setIsOpen(false);
-  }
+  };
   useEffect(() => {
     reset({
       name: "Nguyen Thanh Huyen",

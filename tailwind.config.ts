@@ -17,10 +17,6 @@ module.exports = {
         titleHover: "rgba(0, 0, 0, 0.6)",
         textBio: "#757575",
       },
-
-      images: {
-        domains: ["images.unsplash.com", "lh3.googleusercontent.com"],
-      },
     },
   },
   plugins: [
