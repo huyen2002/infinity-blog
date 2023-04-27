@@ -9,9 +9,9 @@ import Navbar from "../../../components/Navbar";
 const Report: NextPage = () => {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = router.query as { id: string };
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -24,10 +24,10 @@ const Report: NextPage = () => {
           className="m-auto flex flex-col gap-5 rounded-sm px-10 py-10 shadow"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <h1 className="text-textNavbar text-2xl font-medium md:text-3xl">
+          <h1 className="text-2xl font-medium text-textNavbar md:text-3xl">
             Report Story
           </h1>
-          <h2 className="text-textNavbar text-lg font-normal md:text-xl">
+          <h2 className="text-lg font-normal text-textNavbar md:text-xl">
             Please select the reason for reporting this story.
           </h2>
           <div className="flex flex-col gap-2">
@@ -90,7 +90,7 @@ const Report: NextPage = () => {
             </button>
             <Link
               href={`/post/${id}`}
-              className="border-button hover:bg-buttonHover rounded-3xl border px-5 py-2 text-base hover:text-white md:text-lg"
+              className="rounded-3xl border border-button px-5 py-2 text-base hover:bg-buttonHover hover:text-white md:text-lg"
             >
               Cancel
             </Link>

@@ -1,4 +1,19 @@
-const Posts = [
+export interface Post {
+  id: string;
+  author: string;
+  bio: string;
+  avatar: string;
+  title: string;
+  followers: number;
+  feature: string;
+  description: string;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  content: string;
+}
+
+const Posts: Array<Post> = [
   {
     id: "1",
     author: "Rajdeep Singh",

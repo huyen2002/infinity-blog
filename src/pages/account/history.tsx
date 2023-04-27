@@ -1,16 +1,16 @@
 import { type NextPage } from "next";
 import Link from "next/link";
 import MainAccount from "../../components/account/MainAccount";
-import Posts from "../../data/posts";
+import Posts, { Post } from "../../data/posts";
 
 const History: NextPage = () => {
   return (
     <MainAccount>
-      <h1 className="text-textNavbar text-3xl font-medium md:mt-5 md:text-5xl">
+      <h1 className="text-3xl font-medium text-textNavbar md:mt-5 md:text-5xl">
         History
       </h1>
-      <div className="scrollbar-hide flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll">
-        {Posts.map((post) => {
+      <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
+        {Posts.map((post: Post) => {
           return (
             <div
               key={post.id}
@@ -18,12 +18,12 @@ const History: NextPage = () => {
             >
               <Link
                 href={`/post/${post.id}`}
-                className="text-textNavbar text-xl font-medium hover:underline md:text-2xl"
+                className="text-xl font-medium text-textNavbar hover:underline md:text-2xl"
               >
                 {post.title}
               </Link>
               <div className="flex justify-between">
-                <span className="font-base text-textBio text-sm md:text-base">
+                <span className="font-base text-sm text-textBio md:text-base">
                   {`Visited at ${post.publishedAt}`}
                 </span>
                 <button className="">

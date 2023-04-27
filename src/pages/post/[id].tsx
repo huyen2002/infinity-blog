@@ -7,12 +7,12 @@ import Content from "../../components/Content";
 import Layout from "../../components/Layout";
 import Navbar from "../../components/Navbar";
 import RightContent from "../../components/RightContent";
-import Comments from "../../components/comments/Comments";
+// import Comments from "../../components/comments/Comments";
 import Posts from "../../data/posts";
 
 const Post = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = router.query as { id: string };
   const post = Posts.find((post) => post.id === id);
 
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -21,7 +21,7 @@ const Post = () => {
     <Layout>
       <Navbar />
       <Content>
-        <div className="scrollbar-hide flex h-screen flex-col overflow-y-scroll">
+        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-5">
               <Image
@@ -36,12 +36,12 @@ const Post = () => {
                   <h1 className="text-lg font-medium md:text-2xl">
                     {post?.author}
                   </h1>
-                  <button className="bg-button hover:bg-buttonHover rounded-2xl px-2 py-2 text-sm text-white md:hidden">
+                  <button className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden">
                     Follow
                   </button>
                 </div>
 
-                <span className="text-textBio text-base font-normal md:text-xl">
+                <span className="text-base font-normal text-textBio md:text-xl">
                   {post?.publishedAt}
                 </span>
               </div>
@@ -89,7 +89,7 @@ const Post = () => {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="#757575"
-                  className="text-textBio hover:text-textNavbar h-8 w-8"
+                  className="h-8 w-8 text-textBio hover:text-textNavbar"
                 >
                   <path
                     strokeLinecap="round"
@@ -97,7 +97,7 @@ const Post = () => {
                     d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
                   />
                 </svg>
-                <span className="text-textBio text-sm font-normal  md:text-xl">
+                <span className="text-sm font-normal text-textBio  md:text-xl">
                   Save
                 </span>
               </button>
@@ -139,14 +139,14 @@ const Post = () => {
           </div>
 
           <div className="">
-            <h1 className="text-title py-5 text-2xl font-[700] md:py-10 md:text-4xl lg:text-5xl">
+            <h1 className="py-5 text-2xl font-[700] text-title md:py-10 md:text-4xl lg:text-5xl">
               {post?.title}
             </h1>
             <div className="prose md:prose-xl">
               {parse((post?.content as string) || "")}
             </div>
             <Options />
-            <Comments currentUserId="1" />
+            {/* <Comments currentUserId="1" /> */}
           </div>
         </div>
         <RightContent>
@@ -158,13 +158,13 @@ const Post = () => {
             className="h-20 w-20 rounded-full object-cover"
           />
           <h1 className="text-2xl font-medium">{post?.author}</h1>
-          <span className=" text-textBio text-lg font-normal">{`${
+          <span className=" text-lg font-normal text-textBio">{`${
             post?.followers || ""
           } Followers`}</span>
-          <p className=" text-textBio text-lg font-normal">{post?.bio}</p>
+          <p className=" text-lg font-normal text-textBio">{post?.bio}</p>
           <button
             title="follow"
-            className="bg-button hover:bg-buttonHover mt-10 h-10 w-24 rounded-3xl px-2 py-2 text-lg font-normal text-white"
+            className="mt-10 h-10 w-24 rounded-3xl bg-button px-2 py-2 text-lg font-normal text-white hover:bg-buttonHover"
           >
             Follow
           </button>
@@ -220,7 +220,7 @@ function Options() {
             </svg>
           )}
 
-          <span className="text-textBio text-lg font-normal">{countLike}</span>
+          <span className="text-lg font-normal text-textBio">{countLike}</span>
         </button>
         <button className="flex items-center gap-1">
           <svg
@@ -229,7 +229,7 @@ function Options() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="#757575"
-            className="text-textNavbar h-8 w-8"
+            className="h-8 w-8 text-textNavbar"
           >
             <path
               strokeLinecap="round"
@@ -237,7 +237,7 @@ function Options() {
               d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
             />
           </svg>
-          <span className="text-textBio text-lg font-normal">Report</span>
+          <span className="text-lg font-normal text-textBio">Report</span>
         </button>
       </div>
     </div>
