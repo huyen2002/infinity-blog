@@ -10,3 +10,7 @@
 .foo {
   white-space: "pre-wrap";
 }
+
+* {
+  font-display: block;
+}

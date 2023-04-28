@@ -1,20 +1,28 @@
 import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import Content from "../../components/Content";
 import Layout from "../../components/Layout";
 import Navbar from "../../components/Navbar";
 import RightContent from "../../components/RightContent";
 // import Comments from "../../components/comments/Comments";
-import Posts from "../../data/posts";
+import { useRouter } from "next/router";
+import {
+  type GetServerSidePropsContext,
+  type InferGetServerSidePropsType,
+} from "next/types";
+import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
 
-const Post = () => {
+const Post = (
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const post = Posts.find((post) => post.id === id);
+  const { data: post } = api.post.getOneWhereId.useQuery(id);
 
+  console.log(props);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isReported, setIsReported] = useState(false);
   return (
@@ -23,26 +31,26 @@ const Post = () => {
       <Content>
         <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4 ">
               <Image
-                src={post?.avatar || ""}
+                src={props.post.author.image || ""}
                 alt="author"
                 width={40}
                 height={40}
                 className="h-12 w-12 rounded-full object-cover md:h-14 md:w-14"
               />
               <div className="flex flex-col gap-1">
-                <div className="flex gap-5">
-                  <h1 className="text-lg font-medium md:text-2xl">
-                    {post?.author}
+                <div className="flex gap-10">
+                  <h1 className="text-base font-medium md:text-lg lg:text-xl">
+                    {props.post.author.name}
                   </h1>
                   <button className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden">
                     Follow
                   </button>
                 </div>
 
-                <span className="text-base font-normal text-textBio md:text-xl">
-                  {post?.publishedAt}
+                <span className="text-sm font-normal text-textBio lg:text-base">
+                  {props.post.updatedAt.toISOString()}
                 </span>
               </div>
             </div>
@@ -102,7 +110,7 @@ const Post = () => {
                 </span>
               </button>
 
-              <Link href={`./report/${id}`}>
+              <Link href={`./report/${props.post.id}`}>
                 {!isReported ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -139,11 +147,11 @@ const Post = () => {
           </div>
 
           <div className="">
-            <h1 className="py-5 text-2xl font-[700] text-title md:py-10 md:text-4xl lg:text-5xl">
-              {post?.title}
+            <h1 className="py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
+              {props.post.title}
             </h1>
-            <div className="prose md:prose-xl">
-              {parse((post?.content as string) || "")}
+            <div className="prose prose-sm md:prose-base lg:prose-lg">
+              {parse((props.post.content as string) || "")}
             </div>
             <Options />
             {/* <Comments currentUserId="1" /> */}
@@ -151,20 +159,24 @@ const Post = () => {
         </div>
         <RightContent>
           <Image
-            src={post?.avatar || ""}
+            src={props.post.author.image || ""}
             alt="avatar"
             width={768}
             height={432}
             className="h-20 w-20 rounded-full object-cover"
           />
-          <h1 className="text-2xl font-medium">{post?.author}</h1>
-          <span className=" text-lg font-normal text-textBio">{`${
-            post?.followers || ""
+          <h1 className="text-lg font-medium md:text-xl">
+            {props.post.author.name}
+          </h1>
+          <span className=" text-sm font-normal  text-textBio md:text-base">{`${
+            props.post.author.followedBy.length || ""
           } Followers`}</span>
-          <p className=" text-lg font-normal text-textBio">{post?.bio}</p>
+          <p className=" text-lg font-normal text-textBio">
+            {props.post.author.bio}
+          </p>
           <button
             title="follow"
-            className="mt-10 h-10 w-24 rounded-3xl bg-button px-2 py-2 text-lg font-normal text-white hover:bg-buttonHover"
+            className="mt-10 flex h-8 w-20 items-center justify-center rounded-3xl bg-button px-2 py-2 text-base font-normal text-white hover:bg-buttonHover"
           >
             Follow
           </button>
@@ -175,6 +187,29 @@ const Post = () => {
 };
 
 export default Post;
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { id } = context.query as { id: string };
+
+  const data = await prisma.post.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      author: {
+        include: {
+          followedBy: true,
+        },
+      },
+    },
+  });
+
+  return {
+    props: {
+      post: JSON.parse(JSON.stringify(data)) as unknown,
+    },
+  };
+}
 
 function Options() {
   const [isActive, setIsActive] = useState(false);
