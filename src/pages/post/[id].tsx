@@ -1,26 +1,23 @@
 import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import Content from "../../components/Content";
-import Layout from "../../components/Layout";
-import Navbar from "../../components/Navbar";
-import RightContent from "../../components/RightContent";
-// import Comments from "../../components/comments/Comments";
-import { useRouter } from "next/router";
 import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
 } from "next/types";
+import { useState } from "react";
 import { prisma } from "~/server/db";
-import { api } from "~/utils/api";
+import Content from "../../components/Content";
+import Layout from "../../components/Layout";
+import Navbar from "../../components/Navbar";
+import RightContent from "../../components/RightContent";
 
 const Post = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const router = useRouter();
-  const { id } = router.query as { id: string };
-  const { data: post } = api.post.getOneWhereId.useQuery(id);
+  // const router = useRouter();
+  // const { id } = router.query as { id: string };
+  // const { data: post } = api.post.getOneWhereId.useQuery(id);
 
   console.log(props);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -29,7 +26,7 @@ const Post = (
     <Layout>
       <Navbar />
       <Content>
-        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide">
+        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4 ">
               <Image
@@ -50,7 +47,7 @@ const Post = (
                 </div>
 
                 <span className="text-sm font-normal text-textBio lg:text-base">
-                  {props.post.updatedAt.toISOString()}
+                  {props.post.updatedAt}
                 </span>
               </div>
             </div>
@@ -147,7 +144,7 @@ const Post = (
           </div>
 
           <div className="">
-            <h1 className="py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
+            <h1 className="w-4/5 py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
               {props.post.title}
             </h1>
             <div className="prose prose-sm md:prose-base lg:prose-lg">
@@ -168,9 +165,7 @@ const Post = (
           <h1 className="text-lg font-medium md:text-xl">
             {props.post.author.name}
           </h1>
-          <span className=" text-sm font-normal  text-textBio md:text-base">{`${
-            props.post.author.followedBy.length || ""
-          } Followers`}</span>
+          <span className=" text-sm font-normal  text-textBio md:text-base">{`${props.post.author.followedBy.length} Followers`}</span>
           <p className=" text-lg font-normal text-textBio">
             {props.post.author.bio}
           </p>

@@ -1,38 +1,45 @@
 import { Menu, Transition } from "@headlessui/react";
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Fragment } from "react";
+import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
-import Posts from "../../data/posts";
 
 const Stories: NextPage = () => {
+  const session = useSession();
+
+  const { data: stories } = api.post.getPostPublishedByUserId.useQuery(
+    session.data?.user.id as string
+  );
   return (
     <MainAccount>
-      <h1 className="text-textNavbar text-3xl font-medium md:mt-5 md:text-5xl">
+      <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
         Stories
       </h1>
-      <div className="scrollbar-hide flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll">
-        {Posts.map((story) => {
-          return (
-            <div
-              key={story.id}
-              className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
-            >
-              <Link
-                href={`/account/story/${story.id}`}
-                className="text-textNavbar text-xl font-medium  hover:underline md:text-2xl"
+      <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
+        {stories &&
+          stories.map((story) => {
+            return (
+              <div
+                key={story.id}
+                className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
               >
-                {story.title}
-              </Link>
-              <div className="flex justify-between">
-                <span className="font-base text-textBio text-sm md:text-base">
-                  {`Published at ${story.publishedAt}`}
-                </span>
-                <MoreOptions />
+                <Link
+                  href={`/post/${story.id}`}
+                  className="text-lg font-medium text-textNavbar  hover:underline md:text-xl"
+                >
+                  {story.title}
+                </Link>
+                <div className="flex justify-between">
+                  <span className="text-sm text-textBio md:text-base">
+                    {`Published at ${story.updatedAt.toISOString()}`}
+                  </span>
+                  <MoreOptions />
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </MainAccount>
   );
@@ -79,7 +86,7 @@ function MoreOptions() {
                       active ? "bg-slate-100" : "text-gray-900"
                     } group flex w-full items-center rounded-md px-2 py-2 text-base font-medium`}
                   >
-                    Return
+                    Revoke
                   </button>
                 )}
               </Menu.Item>

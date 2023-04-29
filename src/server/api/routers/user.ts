@@ -13,6 +13,10 @@ export const userRouter = createTRPCRouter({
       where: {
         id: ctx.session.user.id,
       },
+      include: {
+        followedBy: true,
+        following: true,
+      },
     });
   }),
 
