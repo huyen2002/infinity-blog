@@ -22,22 +22,16 @@ export const readlistRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.readList.create({
-        data: {
-          name: input.name,
-          user: {
-            connect: {
-              id: ctx.session.user.id,
-            },
+  create: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    return ctx.prisma.readList.create({
+      data: {
+        name: input,
+        user: {
+          connect: {
+            id: ctx.session.user.id,
           },
         },
-      });
-    }),
+      },
+    });
+  }),
 });

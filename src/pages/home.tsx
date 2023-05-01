@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const { data: topics } = api.topic.getAll.useQuery();
 
   const [active, setActive] = useState<string>(
-    topics !== undefined ? topics[0].id : ""
+    topics && topics[0] ? topics[0].id : ""
   );
   const handleActive = (e: React.MouseEvent<HTMLElement>) => {
     setActive(e.target.id);

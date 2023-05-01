@@ -4,6 +4,7 @@ import {
 } from "next";
 import Link from "next/link";
 
+import { Post, ReadList, User } from "@prisma/client";
 import { prisma } from "~/server/db";
 import MainAccount from "../../../components/account/MainAccount";
 
@@ -84,8 +85,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   });
   return {
     props: {
-      readlist: JSON.parse(JSON.stringify(readlist)),
-      stories: JSON.parse(JSON.stringify(stories)),
+      readlist: JSON.parse(JSON.stringify(readlist)) as ReadList,
+      stories: JSON.parse(JSON.stringify(stories)) as (Post & {
+        author: User;
+      })[],
     },
   };
 }

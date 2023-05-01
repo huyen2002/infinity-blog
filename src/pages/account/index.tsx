@@ -7,6 +7,7 @@ import MainAccount from "../../components/account/MainAccount";
 
 const Account: NextPage = () => {
   const { data: readlists } = api.readlist.getAll.useQuery();
+
   return (
     <MainAccount>
       <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
@@ -29,7 +30,7 @@ const Account: NextPage = () => {
                   <span className="text-sm font-medium text-textBio md:text-base">
                     {`${readlist.postReadList.length} stories`}
                   </span>
-                  <MoreOptions />
+                  <MoreOptions id={readlist.id} />
                 </div>
               </div>
             );
@@ -39,7 +40,11 @@ const Account: NextPage = () => {
   );
 };
 export default Account;
-function MoreOptions() {
+function MoreOptions({ id }: { id: string }) {
+  const mutation = api.readlist.deleteOneWhereId.useMutation();
+  const handleDelete = () => {
+    mutation.mutate(id);
+  };
   return (
     <div className="top-16 w-28 text-right">
       <Menu as="div" className="relative inline-block text-left">
@@ -79,13 +84,14 @@ function MoreOptions() {
                       active ? "bg-slate-100" : "text-gray-900"
                     } group flex w-full items-center rounded-md px-2 py-2 text-base `}
                   >
-                    Return
+                    Edit
                   </button>
                 )}
               </Menu.Item>
               <Menu.Item>
                 {({ active }) => (
                   <button
+                    onClick={handleDelete}
                     className={`${
                       active ? "bg-slate-100" : "text-gray-900"
                     } group flex w-full items-center rounded-md px-2 py-2 text-base  text-red-500`}
