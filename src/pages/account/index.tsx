@@ -2,41 +2,49 @@ import { Menu, Transition } from "@headlessui/react";
 import { type NextPage } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
+import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
 
 const Account: NextPage = () => {
+  const { data: readlists } = api.readlist.getAll.useQuery();
+
   return (
     <MainAccount>
-      <h1 className="text-textNavbar text-3xl font-medium md:mt-5 md:text-5xl">
+      <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
         Lists
       </h1>
-      <div className="scrollbar-hide flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll">
-        {Lists.map((list) => {
-          return (
-            <div
-              key={list.id}
-              className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
-            >
-              <Link href={`/account/list/${list.id}`}>
-                <h2 className="text-title hover:text-titleHover text-xl font-medium md:text-2xl">
-                  {list.name}
-                </h2>
-              </Link>
-              <div className="flex justify-between">
-                <span className="text-textBio text-sm font-medium md:text-base">
-                  {`${list.stories} stories`}
-                </span>
-                <MoreOptions />
+      <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
+        {readlists &&
+          readlists.map((readlist) => {
+            return (
+              <div
+                key={readlist.id}
+                className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
+              >
+                <Link href={`/account/list/${readlist.id}`}>
+                  <h2 className="text-lg font-medium text-title hover:text-titleHover md:text-xl">
+                    {readlist.name}
+                  </h2>
+                </Link>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-textBio md:text-base">
+                    {`${readlist.postReadList.length} stories`}
+                  </span>
+                  <MoreOptions id={readlist.id} />
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </MainAccount>
   );
 };
 export default Account;
-function MoreOptions() {
+function MoreOptions({ id }: { id: string }) {
+  const mutation = api.readlist.deleteOneWhereId.useMutation();
+  const handleDelete = () => {
+    mutation.mutate(id);
+  };
   return (
     <div className="top-16 w-28 text-right">
       <Menu as="div" className="relative inline-block text-left">
@@ -74,18 +82,19 @@ function MoreOptions() {
                   <button
                     className={`${
                       active ? "bg-slate-100" : "text-gray-900"
-                    } group flex w-full items-center rounded-md px-2 py-2 text-base font-medium`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-base `}
                   >
-                    Return
+                    Edit
                   </button>
                 )}
               </Menu.Item>
               <Menu.Item>
                 {({ active }) => (
                   <button
+                    onClick={handleDelete}
                     className={`${
                       active ? "bg-slate-100" : "text-gray-900"
-                    } group flex w-full items-center rounded-md px-2 py-2 text-base font-medium text-red-500`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-base  text-red-500`}
                   >
                     Delete
                   </button>

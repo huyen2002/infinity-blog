@@ -18,6 +18,9 @@ export const postRouter = createTRPCRouter({
             id: input,
           },
         },
+        include: {
+          author: true,
+        },
       });
     }),
 
@@ -35,4 +38,17 @@ export const postRouter = createTRPCRouter({
       },
     });
   }),
+
+  getPostPublishedByUserId: publicProcedure
+    .input(z.string())
+    .query(({ input, ctx }) => {
+      return ctx.prisma.post.findMany({
+        where: {
+          authorId: input,
+        },
+        include: {
+          author: true,
+        },
+      });
+    }),
 });

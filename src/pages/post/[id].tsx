@@ -1,35 +1,80 @@
+import { Dialog, Transition } from "@headlessui/react";
+import { Post, type Follows, type User } from "@prisma/client";
 import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import Content from "../../components/Content";
-import Layout from "../../components/Layout";
-import Navbar from "../../components/Navbar";
-import RightContent from "../../components/RightContent";
-// import Comments from "../../components/comments/Comments";
-import { useRouter } from "next/router";
 import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
 } from "next/types";
+import { Fragment, useState } from "react";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
+import Content from "../../components/Content";
+import Layout from "../../components/Layout";
+import Navbar from "../../components/Navbar";
+import RightContent from "../../components/RightContent";
 
 const Post = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const router = useRouter();
-  const { id } = router.query as { id: string };
-  const { data: post } = api.post.getOneWhereId.useQuery(id);
+  // const router = useRouter();
+  // const { id } = router.query as { id: string };
+  // const { data: post } = api.post.getOneWhereId.useQuery(id);
+  const { data: readlists } = api.readlist.getAll.useQuery();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  console.log(props);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const handleDropdownToggle = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState<Array<string>>(
+    []
+  );
+  const mutationCreate = api.postReadlist.create.useMutation();
+  const mutationDelete = api.postReadlist.delete.useMutation();
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    if (selectedCheckboxes.includes(value)) {
+      setSelectedCheckboxes(
+        selectedCheckboxes.filter((item) => item !== value) // remove item from array
+      );
+      mutationDelete.mutate({
+        postId: props.post.id,
+        readListId: value,
+      });
+    } else {
+      mutationCreate.mutate({
+        postId: props.post.id,
+        readListId: value,
+      });
+      setSelectedCheckboxes([...selectedCheckboxes, value]);
+    }
+  };
+
   const [isReported, setIsReported] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  function closeModal() {
+    setIsOpen(false);
+  }
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  const [nameReadlist, setNameReadlist] = useState("");
+
+  const mutation = api.readlist.create.useMutation();
+  const handleCreateNewReadlist = () => {
+    mutation.mutate(nameReadlist);
+    setNameReadlist("");
+    setIsOpen(false);
+  };
   return (
     <Layout>
       <Navbar />
       <Content>
-        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide">
+        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4 ">
               <Image
@@ -50,46 +95,157 @@ const Post = (
                 </div>
 
                 <span className="text-sm font-normal text-textBio lg:text-base">
-                  {props.post.updatedAt.toISOString()}
+                  {props.post.updatedAt.toString()}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-10 pl-2 pt-5 md:pl-0 md:pt-0">
-              <button
-                title="bookmark"
-                className="hidden md:block"
-                onClick={() => setIsBookmarked(!isBookmarked)}
-              >
-                {isBookmarked ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="#757575"
-                    className="h-8 w-8"
+              <div className="relative inline-block text-left">
+                <div>
+                  <span className="rounded-md shadow-sm">
+                    <button
+                      type="button"
+                      className=""
+                      id="options-menu"
+                      aria-haspopup="false"
+                      aria-expanded={dropdownOpen}
+                      onClick={handleDropdownToggle}
+                    >
+                      {selectedCheckboxes.length === 0 ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="#757575"
+                          className="h-8 w-8"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="#757575"
+                          className="h-8 w-8"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </span>
+                </div>
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="options-menu"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="#757575"
-                    className="h-8 w-8"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                    {readlists &&
+                      readlists.map((readlist) => (
+                        <div
+                          key={readlist.id}
+                          className="flex items-center px-4 py-2 text-sm text-gray-700"
+                        >
+                          <input
+                            type="checkbox"
+                            className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                            value={readlist.id}
+                            checked={selectedCheckboxes.includes(readlist.id)} // this is where we check if the item is in the array
+                            onChange={handleCheckboxChange}
+                          />
+                          <span className="ml-2">{readlist.name}</span>
+                        </div>
+                      ))}
+
+                    <button
+                      onClick={openModal}
+                      className="mt-4 w-full px-4 py-3 text-left text-sm font-medium text-button hover:text-buttonHover"
+                    >
+                      Create new readlist
+                    </button>
+                    <Transition appear show={isOpen} as={Fragment}>
+                      <Dialog
+                        as="div"
+                        className="relative z-10"
+                        onClose={closeModal}
+                      >
+                        <Transition.Child
+                          as={Fragment}
+                          enter="ease-out duration-300"
+                          enterFrom="opacity-0"
+                          enterTo="opacity-100"
+                          leave="ease-in duration-200"
+                          leaveFrom="opacity-100"
+                          leaveTo="opacity-0"
+                        >
+                          <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        </Transition.Child>
+
+                        <div className="fixed inset-0 overflow-y-auto">
+                          <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Transition.Child
+                              as={Fragment}
+                              enter="ease-out duration-300"
+                              enterFrom="opacity-0 scale-95"
+                              enterTo="opacity-100 scale-100"
+                              leave="ease-in duration-200"
+                              leaveFrom="opacity-100 scale-100"
+                              leaveTo="opacity-0 scale-95"
+                            >
+                              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Title
+                                  as="h3"
+                                  className="text-lg font-medium leading-6 text-gray-900"
+                                >
+                                  Create new readlist
+                                </Dialog.Title>
+                                <div className="mt-4">
+                                  <input
+                                    type="text"
+                                    placeholder="Name"
+                                    value={nameReadlist}
+                                    onChange={(e) =>
+                                      setNameReadlist(e.target.value)
+                                    }
+                                    className="w-full rounded-lg border p-2 outline-none"
+                                  />
+                                </div>
+
+                                <div className="mt-8 flex justify-between">
+                                  <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    onClick={handleCreateNewReadlist}
+                                  >
+                                    Create
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-200 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                    onClick={closeModal}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </Dialog.Panel>
+                            </Transition.Child>
+                          </div>
+                        </div>
+                      </Dialog>
+                    </Transition>
+                  </div>
                 )}
-              </button>
+              </div>
               <button className="flex items-center gap-1 rounded-xl border px-2 py-1 hover:bg-slate-100 md:hidden">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -147,11 +303,11 @@ const Post = (
           </div>
 
           <div className="">
-            <h1 className="py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
+            <h1 className="w-4/5 py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
               {props.post.title}
             </h1>
             <div className="prose prose-sm md:prose-base lg:prose-lg">
-              {parse((props.post.content as string) || "")}
+              {parse(props.post.content || "")}
             </div>
             <Options />
             {/* <Comments currentUserId="1" /> */}
@@ -168,9 +324,7 @@ const Post = (
           <h1 className="text-lg font-medium md:text-xl">
             {props.post.author.name}
           </h1>
-          <span className=" text-sm font-normal  text-textBio md:text-base">{`${
-            props.post.author.followedBy.length || ""
-          } Followers`}</span>
+          <span className=" text-sm font-normal  text-textBio md:text-base">{`${props.post.author.followedBy.length} Followers`}</span>
           <p className=" text-lg font-normal text-textBio">
             {props.post.author.bio}
           </p>
@@ -206,7 +360,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     props: {
-      post: JSON.parse(JSON.stringify(data)) as unknown,
+      post: JSON.parse(JSON.stringify(data)) as Post & {
+        author: User & {
+          followedBy: Follows[];
+        };
+      },
     },
   };
 }

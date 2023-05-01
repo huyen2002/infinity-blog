@@ -22,26 +22,51 @@ datasource db {
 }
 
 model Post {
-    id          String     @id @default(cuid())
-    title       String     @db.Text
-    description String?    @db.Text
-    topicId     String
-    feature     String?    @db.Text
-    content     String     @db.Text
-    published   Boolean    @default(false)
-    authorId    String
-    comment     Comment[]
-    reaction    Reaction[]
-    createdAt   DateTime   @default(now())
-    updatedAt   DateTime   @updatedAt
-    report      Report[]
-    readList    ReadList[]
+    id           String         @id @default(cuid())
+    title        String         @db.Text
+    description  String?        @db.Text
+    topicId      String
+    feature      String?        @db.Text
+    content      String         @db.Text
+    published    Boolean        @default(false)
+    authorId     String
+    comment      Comment[]
+    reaction     Reaction[]
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+    report       Report[]
+    postReadList PostReadList[]
 
     author User  @relation(fields: [authorId], references: [id])
     topic  Topic @relation(fields: [topicId], references: [id])
 
     @@index([authorId])
     @@index([topicId])
+}
+
+model ReadList {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId    String
+
+    name         String
+    postReadList PostReadList[]
+    user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+model PostReadList {
+    postId     String
+    readListId String
+
+    post     Post     @relation(fields: [postId], references: [id])
+    readList ReadList @relation(fields: [readListId], references: [id])
+
+    @@id([postId, readListId])
+    @@index([postId])
+    @@index([readListId])
 }
 
 model Topic {
@@ -155,20 +180,6 @@ model User {
     report        Report[]
     readList      ReadList[]
     userTopic     UserTopic[]
-}
-
-model ReadList {
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    userId    String
-    postId    String
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-    @@id([userId, postId])
-    @@index([userId])
-    @@index([postId])
 }
 
 enum Role {
