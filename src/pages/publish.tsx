@@ -47,7 +47,7 @@ const Publish: NextPage = () => {
   const mutationPublish = api.post.publish.useMutation();
   const mutationPublishDraft = api.post.publishDraft.useMutation();
   console.log(router.query.id);
-  const handlePublish = async () => {
+  const handlePublish = () => {
     // console.log("publish");
     if (router.query.id === undefined) {
       mutationPublish.mutate({
