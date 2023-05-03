@@ -8,7 +8,7 @@ export default function Options() {
           <Link
             href={item.link}
             key={item.name}
-            className="flex rounded-md py-2 px-2 text-textNavbar hover:bg-slate-100 lg:px-4"
+            className="flex rounded-md px-2 py-2 text-textNavbar hover:bg-slate-100 lg:px-4"
           >
             <div>{item.icon}</div>
             <span className="ml-2">{item.name}</span>

@@ -16,7 +16,7 @@ const Home: NextPage = () => {
     topics && topics[0] ? topics[0].id : ""
   );
   const handleActive = (e: React.MouseEvent<HTMLElement>) => {
-    setActive(e.target.id);
+    setActive((e.target as HTMLInputElement).id);
     // console.log(active);
   };
   const { data: posts } = api.post.getAllWhereTopicId.useQuery(active);

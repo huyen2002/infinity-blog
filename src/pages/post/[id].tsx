@@ -1,8 +1,14 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Post, type Follows, type User } from "@prisma/client";
+import {
+  Post,
+  type Follows,
+  type PostReadList,
+  type User,
+} from "@prisma/client";
 import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
@@ -28,9 +34,12 @@ const Post = (
     setDropdownOpen(!dropdownOpen);
   };
 
-  const [selectedCheckboxes, setSelectedCheckboxes] = useState<Array<string>>(
-    []
+  const readlistIds: Array<string> = props.post.postReadList.map(
+    (item) => item.readListId
   );
+
+  const [selectedCheckboxes, setSelectedCheckboxes] =
+    useState<Array<string>>(readlistIds);
   const mutationCreate = api.postReadlist.create.useMutation();
   const mutationDelete = api.postReadlist.delete.useMutation();
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -309,7 +318,8 @@ const Post = (
             <div className="prose prose-sm md:prose-base lg:prose-lg">
               {parse(props.post.content || "")}
             </div>
-            <Options />
+
+            <Options published={props.post.published} id={props.post.id} />
             {/* <Comments currentUserId="1" /> */}
           </div>
         </div>
@@ -355,6 +365,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           followedBy: true,
         },
       },
+      postReadList: true,
     },
   });
 
@@ -364,75 +375,104 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         author: User & {
           followedBy: Follows[];
         };
+        postReadList: PostReadList[];
       },
     },
   };
 }
 
-function Options() {
+function Options({ published, id }: { published: boolean; id: string }) {
+  const router = useRouter();
   const [isActive, setIsActive] = useState(false);
   const [countLike, setCountLike] = useState(0);
-
+  const handlePublish = async (id: string) => {
+    await router
+      .push({
+        pathname: "/publish",
+        query: {
+          id: id,
+        },
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   return (
     <div className="flex justify-center">
-      <div className="fixed bottom-10 flex items-center gap-5 rounded-xl bg-slate-100 px-2 py-1">
-        <button
-          className="flex items-center gap-1"
-          onClick={() => {
-            setIsActive(!isActive);
-            if (isActive) {
-              setCountLike(countLike - 1);
-            } else {
-              setCountLike(countLike + 1);
-            }
-          }}
-        >
-          {isActive ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#757575"
-              className="h-8 w-8"
-            >
-              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-            </svg>
-          ) : (
+      {published ? (
+        <div className="fixed bottom-10 flex items-center gap-5 rounded-xl bg-slate-100 px-2 py-1">
+          <button
+            className="flex items-center gap-1"
+            onClick={() => {
+              setIsActive(!isActive);
+              if (isActive) {
+                setCountLike(countLike - 1);
+              } else {
+                setCountLike(countLike + 1);
+              }
+            }}
+          >
+            {isActive ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="#757575"
+                className="h-8 w-8"
+              >
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="#757575"
+                className="h-8 w-8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+            )}
+
+            <span className="text-lg font-normal text-textBio">
+              {countLike}
+            </span>
+          </button>
+          <button className="flex items-center gap-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="#757575"
-              className="h-8 w-8"
+              className="h-8 w-8 text-textNavbar"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
               />
             </svg>
-          )}
-
-          <span className="text-lg font-normal text-textBio">{countLike}</span>
-        </button>
-        <button className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="#757575"
-            className="h-8 w-8 text-textNavbar"
+            <span className="text-lg font-normal text-textBio">Report</span>
+          </button>
+        </div>
+      ) : (
+        <div className="fixed bottom-10  ">
+          <button
+            onClick={() => handlePublish(id)}
+            className="rounded-3xl bg-button px-4 py-2 text-sm text-white hover:bg-buttonHover"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-            />
-          </svg>
-          <span className="text-lg font-normal text-textBio">Report</span>
-        </button>
-      </div>
+            Publish
+          </button>
+        </div>
+      )}
     </div>
   );
 }

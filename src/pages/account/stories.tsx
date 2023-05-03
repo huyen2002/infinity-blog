@@ -9,9 +9,10 @@ import MainAccount from "../../components/account/MainAccount";
 const Stories: NextPage = () => {
   const session = useSession();
 
-  const { data: stories } = api.post.getPostPublishedByUserId.useQuery(
+  const { data } = api.post.getPostByUserId.useQuery(
     session.data?.user.id as string
   );
+  const stories = data?.filter((post) => post.published);
   return (
     <MainAccount>
       <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
