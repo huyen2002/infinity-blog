@@ -1,12 +1,12 @@
 import { type NextPage } from "next";
 import Link from "next/link";
 import MainAccount from "../../components/account/MainAccount";
-import Posts, { Post } from "../../data/posts";
+import Posts, { type Post } from "../../data/posts";
 
 const History: NextPage = () => {
   return (
     <MainAccount>
-      <h1 className="text-3xl font-medium text-textNavbar md:mt-5 md:text-5xl">
+      <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
         History
       </h1>
       <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
