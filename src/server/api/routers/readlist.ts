@@ -7,7 +7,7 @@ export const readlistRouter = createTRPCRouter({
         userId: ctx.session.user.id,
       },
       include: {
-        postReadList: true,
+        posts: true,
       },
     });
   }),

@@ -28,7 +28,7 @@ const Account: NextPage = () => {
                 </Link>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-textBio md:text-base">
-                    {`${readlist.postReadList.length} stories`}
+                    {`${readlist.posts.length} stories`}
                   </span>
                   <MoreOptions id={readlist.id} />
                 </div>

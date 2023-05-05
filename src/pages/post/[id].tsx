@@ -27,21 +27,30 @@ const Post = (
   // const router = useRouter();
   // const { id } = router.query as { id: string };
   // const { data: post } = api.post.getOneWhereId.useQuery(id);
-  const { data: readlists } = api.readlist.getAll.useQuery();
+  const { data: readLists } = api.readlist.getAll.useQuery();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDropdownToggle = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  const readlistIds: Array<string> = props.post.postReadList.map(
-    (item) => item.readListId
+  const utils = api.useContext();
+  const test = readLists?.filter((item) =>
+    item.posts.some((post) => post.postId === props.post.id)
   );
+  console.log(test);
+  const readListIds: Array<string> | undefined = test?.map((item) => item.id);
 
-  const [selectedCheckboxes, setSelectedCheckboxes] =
-    useState<Array<string>>(readlistIds);
+  console.log(readLists);
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState<Array<string>>(
+    readListIds ?? []
+  );
   const mutationCreate = api.postReadlist.create.useMutation();
-  const mutationDelete = api.postReadlist.delete.useMutation();
+  const mutationDelete = api.postReadlist.delete.useMutation({
+    onSuccess() {
+      utils.readlist.invalidate();
+    },
+  });
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
@@ -159,8 +168,8 @@ const Post = (
                     aria-orientation="vertical"
                     aria-labelledby="options-menu"
                   >
-                    {readlists &&
-                      readlists.map((readlist) => (
+                    {readLists &&
+                      readLists.map((readlist) => (
                         <div
                           key={readlist.id}
                           className="flex items-center px-4 py-2 text-sm text-gray-700"
@@ -353,7 +362,7 @@ const Post = (
 export default Post;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { id } = context.query as { id: string };
+  const id = context.query.id as string;
 
   const data = await prisma.post.findUnique({
     where: {
@@ -365,7 +374,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           followedBy: true,
         },
       },
-      postReadList: true,
+      readLists: true,
     },
   });
 
@@ -375,7 +384,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         author: User & {
           followedBy: Follows[];
         };
-        postReadList: PostReadList[];
+        readLists: PostReadList[];
       },
     },
   };

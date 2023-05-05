@@ -38,7 +38,7 @@ export const postRouter = createTRPCRouter({
             followedBy: true,
           },
         },
-        postReadList: true,
+        readLists: true,
       },
     });
   }),

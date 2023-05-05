@@ -73,7 +73,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   });
   const stories = await prisma.post.findMany({
     where: {
-      postReadList: {
+      readLists: {
         some: {
           readListId: id,
         },
