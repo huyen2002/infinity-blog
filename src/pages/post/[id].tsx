@@ -48,7 +48,7 @@ const Post = (
   const mutationCreate = api.postReadlist.create.useMutation();
   const mutationDelete = api.postReadlist.delete.useMutation({
     onSuccess() {
-      utils.readlist.invalidate();
+      void utils.readlist.invalidate();
     },
   });
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
