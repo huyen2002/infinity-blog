@@ -4,6 +4,9 @@ import { postRouter } from "./routers/post";
 import { postReadlistRouter } from "./routers/postReadlist";
 import { readlistRouter } from "./routers/readlist";
 import { topicRouter } from "./routers/topic";
+import followsRouter from "./routers/follows";
+import reportRouter from "./routers/report";
+import reactionRouter from "./routers/reaction";
 /**
  * This is the primary router for your server.
  *
@@ -15,6 +18,9 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   readlist: readlistRouter,
   postReadlist: postReadlistRouter,
+  follows: followsRouter,
+  report: reportRouter,
+  reaction: reactionRouter,
 });
 
 // export type definition of API

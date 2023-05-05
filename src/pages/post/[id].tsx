@@ -4,6 +4,7 @@ import {
   type Follows,
   type PostReadList,
   type User,
+  type Reaction,
 } from "@prisma/client";
 import parse from "html-react-parser";
 import Image from "next/image";
@@ -13,13 +14,14 @@ import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
 } from "next/types";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 import Content from "../../components/Content";
 import Layout from "../../components/Layout";
 import Navbar from "../../components/Navbar";
 import RightContent from "../../components/RightContent";
+import { useSession } from "next-auth/react";
 
 const Post = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -35,20 +37,26 @@ const Post = (
   };
 
   const utils = api.useContext();
-  const test = readLists?.filter((item) =>
+  const readListsArr = readLists?.filter((item) =>
     item.posts.some((post) => post.postId === props.post.id)
   );
-  console.log(test);
-  const readListIds: Array<string> | undefined = test?.map((item) => item.id);
+  // console.log(test);
+  const readListIds: Array<string> | undefined = readLists?.map(
+    (item) => item.id
+  );
 
-  console.log(readLists);
+  // console.log(readLists);
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<Array<string>>(
     readListIds ?? []
   );
-  const mutationCreate = api.postReadlist.create.useMutation();
+  const mutationCreate = api.postReadlist.create.useMutation({
+    onSuccess() {
+      void utils.postReadlist.invalidate();
+    },
+  });
   const mutationDelete = api.postReadlist.delete.useMutation({
     onSuccess() {
-      void utils.readlist.invalidate();
+      void utils.postReadlist.invalidate();
     },
   });
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,11 +90,50 @@ const Post = (
 
   const [nameReadlist, setNameReadlist] = useState("");
 
-  const mutation = api.readlist.create.useMutation();
+  const mutation = api.readlist.create.useMutation({
+    onSuccess() {
+      void utils.readlist.invalidate();
+    },
+  });
   const handleCreateNewReadlist = () => {
     mutation.mutate(nameReadlist);
     setNameReadlist("");
     setIsOpen(false);
+  };
+
+  const mutationFollow = api.follows.create.useMutation({
+    onSuccess() {
+      void utils.post.invalidate();
+    },
+  });
+  const mutationUnFollow = api.follows.delete.useMutation({
+    onSuccess() {
+      void utils.post.invalidate();
+    },
+  });
+  const { data: session } = useSession();
+
+  const followings = props.post.author.followedBy.find(
+    (item) => item.followerId === session?.user?.id
+  );
+  // console.log(followings);
+  const [isFollowed, setIsFollowed] = useState<boolean>(
+    followings ? true : false
+  );
+  useEffect(() => {
+    setIsFollowed(followings ? true : false);
+  }, [followings]);
+
+  // console.log(isFollowed);
+  const handleFollow = () => {
+    // console.log(isFollowed);
+    if (isFollowed === false) {
+      mutationFollow.mutate(props.post.authorId);
+      setIsFollowed(true);
+    } else {
+      mutationUnFollow.mutate(props.post.authorId);
+      setIsFollowed(false);
+    }
   };
   return (
     <Layout>
@@ -107,9 +154,14 @@ const Post = (
                   <h1 className="text-base font-medium md:text-lg lg:text-xl">
                     {props.post.author.name}
                   </h1>
-                  <button className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden">
-                    Follow
-                  </button>
+                  {props.post.authorId !== session?.user?.id && (
+                    <button
+                      onClick={handleFollow}
+                      className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden"
+                    >
+                      {isFollowed ? "Unfollow" : "Follow"}
+                    </button>
+                  )}
                 </div>
 
                 <span className="text-sm font-normal text-textBio lg:text-base">
@@ -328,7 +380,11 @@ const Post = (
               {parse(props.post.content || "")}
             </div>
 
-            <Options published={props.post.published} id={props.post.id} />
+            <Options
+              published={props.post.published}
+              id={props.post.id}
+              reaction={props.post.reaction}
+            />
             {/* <Comments currentUserId="1" /> */}
           </div>
         </div>
@@ -347,12 +403,15 @@ const Post = (
           <p className=" text-lg font-normal text-textBio">
             {props.post.author.bio}
           </p>
-          <button
-            title="follow"
-            className="mt-10 flex h-8 w-20 items-center justify-center rounded-3xl bg-button px-2 py-2 text-base font-normal text-white hover:bg-buttonHover"
-          >
-            Follow
-          </button>
+          {props.post.authorId !== session?.user.id && (
+            <button
+              title="follow"
+              onClick={handleFollow}
+              className="mt-10 flex h-8 w-20 items-center justify-center rounded-3xl bg-button px-2 py-2 text-base font-normal text-white hover:bg-buttonHover"
+            >
+              {isFollowed ? "UnFollow" : "Follow"}
+            </button>
+          )}
         </RightContent>
       </Content>
     </Layout>
@@ -375,6 +434,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       },
       readLists: true,
+      reaction: true,
     },
   });
 
@@ -385,15 +445,40 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           followedBy: Follows[];
         };
         readLists: PostReadList[];
+        reaction: Reaction[];
       },
     },
   };
 }
 
-function Options({ published, id }: { published: boolean; id: string }) {
+function Options({
+  published,
+  id,
+  reaction,
+}: {
+  published: boolean;
+  id: string;
+  reaction: Reaction[];
+}) {
   const router = useRouter();
-  const [isActive, setIsActive] = useState(false);
-  const [countLike, setCountLike] = useState(0);
+  const { data: session } = useSession();
+  const temp = reaction.find((item) => item.userId === session?.user.id);
+  const [isActive, setIsActive] = useState(temp ? true : false);
+  useEffect(() => {
+    setIsActive(temp ? true : false);
+  }, [temp]);
+
+  const mutationCreate = api.reaction.create.useMutation();
+  const mutationDelete = api.reaction.delete.useMutation();
+  const handleReaction = () => {
+    if (isActive) {
+      mutationDelete.mutate(id);
+      setIsActive(false);
+    } else {
+      mutationCreate.mutate(id);
+      setIsActive(true);
+    }
+  };
   const handlePublish = async (id: string) => {
     await router
       .push({
@@ -413,17 +498,7 @@ function Options({ published, id }: { published: boolean; id: string }) {
     <div className="flex justify-center">
       {published ? (
         <div className="fixed bottom-10 flex items-center gap-5 rounded-xl bg-slate-100 px-2 py-1">
-          <button
-            className="flex items-center gap-1"
-            onClick={() => {
-              setIsActive(!isActive);
-              if (isActive) {
-                setCountLike(countLike - 1);
-              } else {
-                setCountLike(countLike + 1);
-              }
-            }}
-          >
+          <button className="flex items-center gap-1" onClick={handleReaction}>
             {isActive ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -451,7 +526,7 @@ function Options({ published, id }: { published: boolean; id: string }) {
             )}
 
             <span className="text-lg font-normal text-textBio">
-              {countLike}
+              {reaction.length}
             </span>
           </button>
           <button className="flex items-center gap-1">

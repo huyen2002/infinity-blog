@@ -1,18 +1,30 @@
 import { type NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import Content from "../../../components/Content";
 import Layout from "../../../components/Layout";
 import Navbar from "../../../components/Navbar";
+import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
 
 const Report: NextPage = () => {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
   const { id } = router.query as { id: string };
-
-  const onSubmit = (data: any) => {
+  const mutation = api.report.create.useMutation({
+    onSuccess: () => {
+      void router.push(`/post/${id}`);
+    },
+  });
+  const { data: session } = useSession();
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
     console.log(data);
+    mutation.mutate({
+      postId: id,
+      userId: session?.user?.id || "",
+      reason: data.reason as string,
+    });
   };
 
   return (
