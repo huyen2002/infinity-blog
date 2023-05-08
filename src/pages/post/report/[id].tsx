@@ -1,7 +1,7 @@
 import { type NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form";
 import Content from "../../../components/Content";
 import Layout from "../../../components/Layout";
 import Navbar from "../../../components/Navbar";

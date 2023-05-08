@@ -4,7 +4,7 @@ import {
 } from "next";
 import Link from "next/link";
 
-import { Post, ReadList, User } from "@prisma/client";
+import { type Post, type ReadList, type User } from "@prisma/client";
 import { prisma } from "~/server/db";
 import MainAccount from "../../../components/account/MainAccount";
 

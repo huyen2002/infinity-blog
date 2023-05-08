@@ -3,10 +3,11 @@ import {
   Post,
   type Follows,
   type PostReadList,
-  type User,
   type Reaction,
+  type User,
 } from "@prisma/client";
 import parse from "html-react-parser";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -21,7 +22,6 @@ import Content from "../../components/Content";
 import Layout from "../../components/Layout";
 import Navbar from "../../components/Navbar";
 import RightContent from "../../components/RightContent";
-import { useSession } from "next-auth/react";
 
 const Post = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -41,7 +41,7 @@ const Post = (
     item.posts.some((post) => post.postId === props.post.id)
   );
   // console.log(test);
-  const readListIds: Array<string> | undefined = readLists?.map(
+  const readListIds: Array<string> | undefined = readListsArr?.map(
     (item) => item.id
   );
 

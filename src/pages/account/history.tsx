@@ -1,7 +1,7 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import MainAccount from "../../components/account/MainAccount";
 import { api } from "~/utils/api";
+import MainAccount from "../../components/account/MainAccount";
 
 const History: NextPage = () => {
   const { data: history } = api.history.get.useQuery();
@@ -9,7 +9,7 @@ const History: NextPage = () => {
   const utils = api.useContext();
   const mutation = api.post.removeFromHistory.useMutation({
     onSuccess: () => {
-      utils.history.invalidate();
+      void utils.history.invalidate();
     },
   });
   const handleRemove = (id: string) => {
@@ -37,7 +37,7 @@ const History: NextPage = () => {
                 </Link>
                 <div className="flex justify-between">
                   <span className="font-base text-sm text-textBio md:text-base">
-                    {`Updated at ${post.updatedAt}`}
+                    {`Updated at ${post.updatedAt.toISOString()}`}
                   </span>
                   <button onClick={() => handleRemove(post.id)} className="">
                     <svg
