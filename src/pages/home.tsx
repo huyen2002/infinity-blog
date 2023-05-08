@@ -1,7 +1,9 @@
-import { type NextPage } from "next";
+import { type Topic } from "@prisma/client";
+import { type InferGetStaticPropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 import Content from "../components/Content";
 import Layout from "../components/Layout";
@@ -9,9 +11,9 @@ import LeftContent from "../components/LeftContent";
 import Navbar from "../components/Navbar";
 import RightContent from "../components/RightContent";
 
-const Home: NextPage = () => {
-  const { data: topics } = api.topic.getAll.useQuery();
-
+const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  // const { data: topics } = api.topic.getAll.useQuery();
+  const topics: Topic[] | undefined = props.data;
   const [active, setActive] = useState<string>(
     topics && topics[0] ? topics[0].id : ""
   );
@@ -114,4 +116,12 @@ export default Home;
 function getWordStr(str: string) {
   // 50 words
   return str.split(/\s+/).slice(0, 50).join(" ");
+}
+export async function getStaticProps() {
+  const data: Topic[] | undefined = await prisma.topic.findMany();
+  return {
+    props: {
+      data,
+    },
+  };
 }

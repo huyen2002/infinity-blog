@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import Content from "../Content";
 import Layout from "../Layout";
 import LeftContent from "../LeftContent";
@@ -11,6 +12,7 @@ export default function MainAccount({
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session } = useSession();
   return (
     <Layout>
       <Navbar />
@@ -18,12 +20,12 @@ export default function MainAccount({
         <LeftContent>
           <Options />
           <div className="flex flex-col gap-10 border-t">
-            <SmProfile />
+            <SmProfile id={session?.user.id || ""} />
             {children}
           </div>
         </LeftContent>
         <RightContent>
-          <Profile />
+          <Profile id={session?.user.id || ""} />
         </RightContent>
       </Content>
     </Layout>

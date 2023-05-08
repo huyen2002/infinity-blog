@@ -40,6 +40,7 @@ const Account: NextPage = () => {
   );
 };
 export default Account;
+
 function MoreOptions({ id }: { id: string }) {
   const mutation = api.readlist.deleteOneWhereId.useMutation();
   const handleDelete = () => {
@@ -107,36 +108,3 @@ function MoreOptions({ id }: { id: string }) {
     </div>
   );
 }
-
-export const Lists = [
-  {
-    id: 1,
-    name: "NextJs",
-    stories: 2,
-    storiesList: [
-      {
-        id: 1,
-        title: "What is NextJs?",
-      },
-      {
-        id: 2,
-        title: "How to use NextJs?",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Learning ReactJs",
-    stories: 5,
-  },
-  {
-    id: 3,
-    name: "My music",
-    stories: 4,
-  },
-  {
-    id: 4,
-    name: "Learning ReactJs",
-    stories: 5,
-  },
-];

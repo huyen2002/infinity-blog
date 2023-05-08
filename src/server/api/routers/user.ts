@@ -14,8 +14,16 @@ export const userRouter = createTRPCRouter({
         id: ctx.session.user.id,
       },
       include: {
-        followedBy: true,
-        following: true,
+        followedBy: {
+          include: {
+            follower: true,
+          },
+        },
+        following: {
+          include: {
+            following: true,
+          },
+        },
       },
     });
   }),
@@ -29,11 +37,37 @@ export const userRouter = createTRPCRouter({
       where: {
         id: input,
       },
-      // include: {
-      //   readList: true,
-      //   followedBy: true,
-      //   following: true,
-      // },
+      include: {
+        post: true,
+        followedBy: {
+          include: {
+            follower: true,
+          },
+        },
+        following: {
+          include: {
+            following: true,
+          },
+        },
+      },
     });
   }),
+  edit: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        bio: z.string(),
+      })
+    )
+    .mutation(({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: ctx.session.user.id,
+        },
+        data: {
+          name: input.name,
+          bio: input.bio,
+        },
+      });
+    }),
 });
