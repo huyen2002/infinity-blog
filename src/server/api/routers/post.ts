@@ -150,4 +150,64 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+
+  addToHistory: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      // const { data: history } = api.history.get.useQuery();
+
+      const history = await ctx.prisma.history.findUnique({
+        where: {
+          userId: ctx.session.user.id,
+        },
+        include: {
+          posts: {
+            include: {
+              post: true,
+            },
+          },
+        },
+      });
+
+      const posts = history?.posts.map(({ post }) => post);
+      const isPostInHistory = posts?.find((post) => post.id === input);
+
+      if (isPostInHistory) return;
+      return ctx.prisma.post.update({
+        where: {
+          id: input,
+        },
+        data: {
+          histories: {
+            create: {
+              history: {
+                connect: {
+                  userId: ctx.session.user.id,
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
+
+  removeFromHistory: protectedProcedure
+    .input(z.string())
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.post.update({
+        where: {
+          id: input,
+        },
+        data: {
+          histories: {
+            delete: {
+              userId_postId: {
+                postId: input,
+                userId: ctx.session.user.id,
+              },
+            },
+          },
+        },
+      });
+    }),
 });

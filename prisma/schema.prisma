@@ -36,12 +36,34 @@ model Post {
     updatedAt   DateTime       @updatedAt
     report      Report[]
     readLists   PostReadList[]
+    histories   HistoryPost[]
 
     author User   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     topic  Topic? @relation(fields: [topicId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     @@index([authorId])
     @@index([topicId])
+}
+
+model History {
+    userId String
+    posts  HistoryPost[]
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id([userId])
+    @@index([userId])
+}
+
+model HistoryPost {
+    userId  String
+    postId  String
+    post    Post    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    history History @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id([userId, postId])
+    @@index([userId])
+    @@index([postId])
 }
 
 model ReadList {
@@ -180,6 +202,8 @@ model User {
     report        Report[]
     readList      ReadList[]
     userTopic     UserTopic[]
+
+    history History?
 }
 
 enum Role {

@@ -14,7 +14,7 @@ import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
 } from "next/types";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 import Content from "../../components/Content";
@@ -135,11 +135,32 @@ const Post = (
       setIsFollowed(false);
     }
   };
+
+  const postRef = useRef<HTMLDivElement>(null);
+  const mutationHistory = api.post.addToHistory.useMutation({
+    onSuccess() {
+      console.log("history success");
+    },
+  });
+  const handleScroll = () => {
+    console.log("scroll");
+    if (postRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = postRef.current;
+      if (scrollTop + clientHeight >= (scrollHeight * 2) / 3) {
+        console.log("reach bottom");
+        mutationHistory.mutate(props.post.id);
+      }
+    }
+  };
   return (
     <Layout>
       <Navbar />
       <Content>
-        <div className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5">
+        <div
+          ref={postRef}
+          onScroll={handleScroll}
+          className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5"
+        >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4 ">
               <Image

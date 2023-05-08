@@ -7,6 +7,7 @@ import { topicRouter } from "./routers/topic";
 import followsRouter from "./routers/follows";
 import reportRouter from "./routers/report";
 import reactionRouter from "./routers/reaction";
+import historyRouter from "./routers/history";
 /**
  * This is the primary router for your server.
  *
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   follows: followsRouter,
   report: reportRouter,
   reaction: reactionRouter,
+  history: historyRouter,
 });
 
 // export type definition of API

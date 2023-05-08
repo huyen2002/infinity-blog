@@ -45,6 +45,29 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
+  events: {
+    createUser: async (message) => {
+      await prisma.history.create({
+        data: {
+          userId: message.user.id,
+        },
+      });
+      if (
+        message.user.email &&
+        env.ADMIN_EMAILS.split(",").includes(message.user.email)
+      ) {
+        await prisma.user.update({
+          where: {
+            email: message.user.email,
+          },
+          data: {
+            role: "ADMIN",
+          },
+        });
+      }
+    },
+  },
+
   adapter: PrismaAdapter(prisma),
   providers: [
     // DiscordProvider({
