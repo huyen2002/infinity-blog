@@ -8,6 +8,8 @@ export const postRouter = createTRPCRouter({
       },
       include: {
         author: true,
+        topic: true,
+        report: true,
       },
     });
   }),
@@ -207,6 +209,16 @@ export const postRouter = createTRPCRouter({
               },
             },
           },
+        },
+      });
+    }),
+
+  deleteOneWhereId: protectedProcedure
+    .input(z.string())
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.post.delete({
+        where: {
+          id: input,
         },
       });
     }),

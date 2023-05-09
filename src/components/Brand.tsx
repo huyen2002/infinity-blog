@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 function Brand() {
   return (
@@ -8,11 +8,11 @@ function Brand() {
         <Image
           src="/logo.png"
           alt="logo"
-          className="object-cover "
-          width={100}
-          height={100}
+          className="object-cover"
+          width={80}
+          height={80}
         />
-        <h1 className="font-pacifico text-4xl not-italic leading-[7rem] text-black/80 md:text-5xl lg:text-6xl">
+        <h1 className="font-pacifico text-3xl not-italic leading-[7rem] text-black/80 md:text-4xl lg:text-5xl">
           Infinity
         </h1>
       </div>

@@ -1,3 +1,4 @@
+import { Status } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -29,7 +30,11 @@ export const userRouter = createTRPCRouter({
   }),
 
   getAll: adminProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany();
+    return ctx.prisma.user.findMany({
+      include: {
+        post: true,
+      },
+    });
   }),
 
   getOneWhereId: publicProcedure.input(z.string()).query(({ ctx, input }) => {
@@ -67,6 +72,23 @@ export const userRouter = createTRPCRouter({
         data: {
           name: input.name,
           bio: input.bio,
+        },
+      });
+    }),
+
+  toggleActive: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          status: Status.ACTIVE,
         },
       });
     }),

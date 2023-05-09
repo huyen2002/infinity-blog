@@ -1,4 +1,4 @@
-import { type Topic } from "@prisma/client";
+import { type Post, type Topic, type User } from "@prisma/client";
 import { type InferGetStaticPropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +13,8 @@ import RightContent from "../components/RightContent";
 
 const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // const { data: topics } = api.topic.getAll.useQuery();
-  const topics: Topic[] | undefined = props.data;
+
+  const topics: Topic[] | undefined = props.topics;
   const [active, setActive] = useState<string>(
     topics && topics[0] ? topics[0].id : ""
   );
@@ -81,8 +82,11 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         <h1 className="text-lg font-semibold text-title hover:text-titleHover md:text-xl">
                           {post.title}
                         </h1>
-                        <p className=" text-sm font-normal md:text-base">{`${getWordStr(
-                          post.description || ""
+                        <p className="text-sm font-normal text-textBio md:text-base">{`${getWordStr(
+                          {
+                            str: post.description || "",
+                            num: 50,
+                          }
                         )}...`}</p>
                       </div>
                       <div>
@@ -102,9 +106,31 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         </LeftContent>
 
         <RightContent>
-          <div className="flex flex-col items-center gap-10">
-            <h3>Recommended Topics</h3>
-            <div className="flex gap-5"></div>
+          <div className="flex flex-col gap-8">
+            <h3 className="text-base font-bold text-textNavbar md:text-xl">
+              New updates
+            </h3>
+            <div className="flex flex-col gap-5">
+              {props.posts &&
+                props.posts.length > 0 &&
+                props.posts.map((post) => {
+                  return (
+                    <div key={post.id}>
+                      <Link href={`/post/${post.id}`}>
+                        <h1 className="text-sm font-semibold text-title hover:text-titleHover md:text-lg">
+                          {post.title}
+                        </h1>
+                        <p className="text-xs font-normal text-textBio md:text-sm">{`${getWordStr(
+                          {
+                            str: post.description || "",
+                            num: 10,
+                          }
+                        )}...`}</p>
+                      </Link>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </RightContent>
       </Content>
@@ -113,15 +139,32 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 };
 export default Home;
 
-function getWordStr(str: string) {
+function getWordStr({ str, num }: { str: string; num: number }) {
   // 50 words
-  return str.split(/\s+/).slice(0, 50).join(" ");
+  return str.split(/\s+/).slice(0, num).join(" ");
 }
 export async function getStaticProps() {
-  const data: Topic[] | undefined = await prisma.topic.findMany();
+  const topics: Topic[] | undefined = await prisma.topic.findMany();
+  const posts: (Post & {
+    author: User;
+  })[] = await prisma.post.findMany({
+    where: {
+      published: true,
+    },
+    include: {
+      author: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+    take: 5,
+  });
   return {
     props: {
-      data,
+      topics,
+      posts: JSON.parse(JSON.stringify(posts)) as (Post & {
+        author: User;
+      })[],
     },
   };
 }

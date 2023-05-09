@@ -19,7 +19,7 @@ export default function Navbar() {
               alt="logo"
             />
           </Link>
-          <div className="hidden h-12 items-center rounded-2xl bg-slate-100 text-base md:flex md:text-lg">
+          <div className="hidden h-10 items-center rounded-2xl bg-slate-100 text-base md:flex md:text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -38,7 +38,7 @@ export default function Navbar() {
             <input
               type="text"
               placeholder="Search"
-              className=" w-52 rounded-2xl bg-slate-100 px-1 py-2 text-textNavbar focus:outline-none"
+              className=" w-62 rounded-2xl bg-slate-100 px-1 py-2 text-textNavbar focus:outline-none"
             />
           </div>
         </div>
@@ -74,8 +74,8 @@ export default function Navbar() {
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
-          stroke="#292929"
-          className="h-8 w-8"
+          stroke="#757575"
+          className="h-8 w-8 text-textBio"
         >
           <path
             strokeLinecap="round"
