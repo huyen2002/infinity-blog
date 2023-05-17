@@ -1,36 +1,17 @@
 import { type Topic } from "@prisma/client";
+import { UploadButton } from "@uploadthing/react";
+import "@uploadthing/react/styles.css";
 import { type NextPage } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Layout from "~/components/Layout";
 import Navbar from "~/components/Navbar";
+import type { OurFileRouter } from "~/server/uploadthing";
 import { api } from "~/utils/api";
 const Publish: NextPage = () => {
-  const [selectedFile, setSelectedFile] = useState<File | undefined>();
-  const [preview, setPreview] = useState<string>();
   const router = useRouter();
   console.log(router.query.title);
-  useEffect(() => {
-    if (!selectedFile) {
-      setPreview(undefined);
-      return;
-    }
-
-    const objUrl = URL.createObjectURL(selectedFile);
-    setPreview(objUrl);
-
-    return () => URL.revokeObjectURL(objUrl);
-  }, [selectedFile]);
-
-  const onSelectFile = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = (e.target as HTMLInputElement).files;
-    if (files === null || files.length === 0) {
-      setSelectedFile(undefined);
-      return;
-    }
-    setSelectedFile(files[0]);
-  };
 
   const { data: topics } = api.topic.getAll.useQuery();
   const [filteredTopics, setFilteredTopics] = useState<Topic[]>([]);
@@ -44,6 +25,8 @@ const Publish: NextPage = () => {
     setFilteredTopics(filtered || []);
   };
 
+  const [featuredImage, setFeaturedImage] = useState<string>("");
+
   const mutationPublish = api.post.publish.useMutation();
   const mutationPublishDraft = api.post.publishDraft.useMutation();
   console.log(router.query.id);
@@ -55,6 +38,7 @@ const Publish: NextPage = () => {
         description: router.query.description as string,
         content: router.query.content as string,
         topic: inputValue,
+        feature: featuredImage,
       });
     } else {
       mutationPublishDraft.mutate({
@@ -70,15 +54,28 @@ const Publish: NextPage = () => {
       <div className="mt-10 flex gap-48">
         <div className="flex flex-col gap-5">
           <h1 className="text-xl font-bold text-textNavbar">Story Feature</h1>
-          <input
+          {/* <input
             type="file"
             id="feature"
             name="feature"
             onChange={onSelectFile}
+          /> */}
+          <UploadButton<OurFileRouter>
+            endpoint="imageUploader"
+            onClientUploadComplete={(res) => {
+              // Do something with the response
+              console.log("Files: ", res);
+              setFeaturedImage(res ? (res[0]?.fileUrl as string) : "");
+              alert("Upload Completed");
+            }}
+            onUploadError={(error: Error) => {
+              // Do something with the error.
+              alert(`ERROR! ${error.message}`);
+            }}
           />
-          {selectedFile ? (
+          {featuredImage ? (
             <Image
-              src={preview || ""}
+              src={featuredImage}
               alt="feature"
               width={300}
               height={300}

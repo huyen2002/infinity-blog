@@ -21,10 +21,17 @@ const config = {
   },
 
   images: {
-    domains: ["images.unsplash.com", "lh3.googleusercontent.com"],
+    domains: [
+      "images.unsplash.com",
+      "lh3.googleusercontent.com",
+      "uploadthing.com",
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  experimental: {
+    esmExternals: false, // THIS IS THE FLAG THAT MATTERS
+  },
 };
 export default config;

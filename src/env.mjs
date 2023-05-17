@@ -22,6 +22,7 @@ const server = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   ADMIN_EMAILS: z.string(),
+  UPLOADTHING_SECRET: z.string(),
 });
 
 /**
@@ -50,6 +51,7 @@ const processEnv = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   ADMIN_EMAILS: process.env.ADMIN_EMAILS,
+  UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

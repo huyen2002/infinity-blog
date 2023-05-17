@@ -5,10 +5,10 @@ import {
 import { getProviders, signIn } from "next-auth/react";
 
 import { getServerSession } from "next-auth";
+import Image from "next/image";
 import { authOptions } from "~/server/auth";
 import Brand from "../../components/Brand";
 import Layout from "../../components/Layout";
-
 function SignIn({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -55,22 +55,40 @@ function SignIn({
         </div>
         <button
           type="submit"
-          className="mt-5 rounded-xl bg-button px-5 py-2 text-lg font-normal text-white md:text-2xl"
+          className="mt-5 rounded-xl bg-button px-5 py-2 text-lg font-normal text-white md:text-xl"
         >
           Sign in
         </button>
+        {/* <span className="my-5 flex justify-center">Or</span> */}
+
+        {/* <button
+          onClick={() => signIn()}
+          className=" flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-lg font-normal text-gray-700 shadow-md md:text-lg"
+        >
+          <Image src="/google.png" width={30} height={30} alt="google_icon" />
+
+          <p>Sign in with Google</p>
+        </button> */}
       </form>
-      <div>
+      <div className=" m-auto my-8 flex w-full flex-col gap-4 font-montserrat text-base sm:w-2/3 md:text-lg lg:w-1/3">
         <span className="flex justify-center">Or</span>
-        <div className="mt-5 flex flex-col gap-2">
-          {Object.values(providers).map((provider) => (
-            <div key={provider.name}>
-              <button onClick={() => signIn(provider.id)}>
-                Sign in with {provider.name}
-              </button>
-            </div>
-          ))}
-        </div>
+
+        {Object.values(providers).map((provider) => (
+          <div key={provider.name}>
+            <button
+              onClick={() => signIn(provider.id)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-lg font-normal text-gray-700 shadow-md md:text-lg"
+            >
+              <Image
+                src="/google.png"
+                width={30}
+                height={30}
+                alt="google_icon"
+              />
+              Sign in with {provider.name}
+            </button>
+          </div>
+        ))}
       </div>
     </Layout>
   );

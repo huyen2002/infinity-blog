@@ -87,6 +87,7 @@ export const postRouter = createTRPCRouter({
         description: z.string(),
         content: z.string(),
         topic: z.string(),
+        feature: z.string(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -96,6 +97,7 @@ export const postRouter = createTRPCRouter({
           description: input.description,
           content: input.content,
           published: true,
+          feature: input.feature,
           author: {
             connect: {
               id: ctx.session.user.id,
