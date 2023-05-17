@@ -54,7 +54,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             posts.map((post) => {
               return (
                 <div key={post.id}>
-                  <Link href={`/account/${post.authorId}`}>
+                  <Link href={`/user/${post.authorId}`}>
                     <div className="flex items-center gap-5 ">
                       <div className="rounded-full ">
                         <Image

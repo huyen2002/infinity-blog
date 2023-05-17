@@ -24,10 +24,10 @@ datasource db {
 model Post {
     id          String         @id @default(cuid())
     title       String?        @db.Text
-    description String?        @db.Text
+    description String?        @db.LongText
     topicId     String?
     feature     String?        @db.Text
-    content     String?        @db.Text
+    content     String?        @db.LongText
     published   Boolean        @default(false)
     authorId    String
     comment     Comment[]

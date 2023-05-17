@@ -28,7 +28,11 @@ const Publish: NextPage = () => {
   const [featuredImage, setFeaturedImage] = useState<string>("");
 
   const mutationPublish = api.post.publish.useMutation();
-  const mutationPublishDraft = api.post.publishDraft.useMutation();
+  const mutationPublishDraft = api.post.publishDraft.useMutation({
+    async onSuccess() {
+      await router.push("/home");
+    },
+  });
   console.log(router.query.id);
   const handlePublish = () => {
     // console.log("publish");
@@ -66,7 +70,7 @@ const Publish: NextPage = () => {
               // Do something with the response
               console.log("Files: ", res);
               setFeaturedImage(res ? (res[0]?.fileUrl as string) : "");
-              alert("Upload Completed");
+              // alert("Upload Completed");
             }}
             onUploadError={(error: Error) => {
               // Do something with the error.

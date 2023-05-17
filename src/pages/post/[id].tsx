@@ -550,7 +550,7 @@ function Options({
               {reaction.length}
             </span>
           </button>
-          <button className="flex items-center gap-1">
+          <Link href={`./report/${id}`} className="flex items-center gap-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -566,7 +566,7 @@ function Options({
               />
             </svg>
             <span className="text-lg font-normal text-textBio">Report</span>
-          </button>
+          </Link>
         </div>
       ) : (
         <div className="fixed bottom-10  ">

@@ -34,6 +34,16 @@ const Posts = () => {
   const currentPosts:
     | inferRouterOutputs<AppRouter>["post"]["getAll"]
     | undefined = searchResult?.slice(firstPostIndex, lastPostIndex);
+
+  const utils = api.useContext();
+  const mutation = api.post.deleteOneWhereId.useMutation({
+    onSuccess() {
+      void utils.post.invalidate();
+    },
+  });
+  const handleDelete = (id: string) => {
+    mutation.mutate(id);
+  };
   return (
     <div className="flex">
       <Sidebar />
@@ -98,8 +108,11 @@ const Posts = () => {
                       <td className="px-6 py-4">{post?.report.length}</td>
 
                       <td className="px-6 py-4">
-                        <button className="h-8 w-14 rounded-full border border-button text-buttonHover hover:bg-buttonHover hover:text-white">
-                          Cancel
+                        <button
+                          onClick={() => handleDelete(post.id)}
+                          className="h-8 w-14 rounded-full border border-red-300 text-red-500 hover:bg-red-400 hover:text-white"
+                        >
+                          Delete
                         </button>
                       </td>
                     </tr>

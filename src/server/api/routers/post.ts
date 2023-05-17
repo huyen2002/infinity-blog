@@ -174,9 +174,18 @@ export const postRouter = createTRPCRouter({
       });
 
       const posts = history?.posts.map(({ post }) => post);
-      const isPostInHistory = posts?.find((post) => post.id === input);
+      const isPostInHistory = posts?.find((post) => {
+        post.id === input;
+      });
 
       if (isPostInHistory) return;
+      const post = await ctx.prisma.post.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      if (post?.published === false) return;
+
       return ctx.prisma.post.update({
         where: {
           id: input,

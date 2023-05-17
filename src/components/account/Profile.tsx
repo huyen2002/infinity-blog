@@ -30,8 +30,8 @@ function Profile({ id }: { id: string }) {
     <div className="flex flex-col gap-5">
       <Image
         src={user?.image || "/avatar.png"}
-        width={500}
-        height={500}
+        width={100}
+        height={100}
         alt="avatar"
         className="max-w-none rounded-full object-cover md:h-28 md:w-28 xl:h-40 xl:w-40"
       />
