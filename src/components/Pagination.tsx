@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-export const postsPerPage = 2;
+export const postsPerPage = 3;
 const Pagination = ({
   totalPosts,
   setCurrentPage,

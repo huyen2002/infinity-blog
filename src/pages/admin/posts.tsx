@@ -49,9 +49,15 @@ const Posts = () => {
       <Sidebar />
 
       <div className="ml-10 mt-10">
-        <h1 className="text-lg font-semibold text-textNavbar md:text-3xl">
-          Posts
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-lg font-semibold text-textNavbar md:text-3xl">
+            Posts
+          </h1>
+          <span className="text-base font-semibold text-textNavbar md:text-lg">
+            {data?.length}
+          </span>
+        </div>
+
         <Searchbar
           placeholder="Search by post id"
           handleChange={handleChange}
