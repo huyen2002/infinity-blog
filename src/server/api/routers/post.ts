@@ -15,18 +15,46 @@ export const postRouter = createTRPCRouter({
   }),
 
   getAllWhereTopicId: publicProcedure
-    .input(z.string())
-    .query(({ ctx, input }) => {
-      return ctx.prisma.post.findMany({
-        where: {
-          topic: {
-            id: input,
+    .input(
+      z.object({
+        topicId: z.string(),
+        params: z.object({
+          page: z.number(),
+          size: z.number(),
+        }),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      if (!input) {
+        return [];
+      }
+
+      const [posts, count] = await ctx.prisma.$transaction([
+        ctx.prisma.post.findMany({
+          where: {
+            topic: {
+              id: input.topicId,
+            },
           },
-        },
-        include: {
-          author: true,
-        },
-      });
+          include: {
+            author: true,
+          },
+          skip: (input.params.page - 1) * input.params.size,
+          take: input.params.size,
+        }),
+        ctx.prisma.post.count({
+          where: {
+            topic: {
+              id: input.topicId,
+            },
+          },
+        }),
+      ]);
+
+      return {
+        total: count,
+        data: posts,
+      };
     }),
 
   getOneWhereId: publicProcedure.input(z.string()).query(({ ctx, input }) => {

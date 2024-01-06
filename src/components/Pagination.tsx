@@ -1,53 +1,82 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-export const postsPerPage = 3;
 const Pagination = ({
-  totalPosts,
-  setCurrentPage,
-  currentPage,
+  total,
+  current,
+  pageSize,
+  setPage,
 }: {
-  totalPosts: number;
-  setCurrentPage: (page: number) => void;
-  currentPage: number;
+  total: number;
+  current: number;
+  pageSize: number;
+  setPage: (page: number) => void;
 }) => {
-  const pages = [];
-
-  for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-    pages.push(i);
-  }
-
+  const pageCount: number =
+    Math.ceil(total / pageSize) === 0 ? 1 : Math.ceil(total / pageSize);
   return (
-    <div className="fixed bottom-14 inline-flex items-center justify-center -space-x-px rounded-md shadow-sm md:right-10 lg:right-20">
-      <button
-        onClick={() => setCurrentPage(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-200 focus:z-20 disabled:bg-gray-200"
-      >
-        <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-      </button>
-      {pages.map((page, index) => {
-        return (
-          <button
-            key={index}
-            onClick={() => setCurrentPage(page)}
-            className={`${
-              page === currentPage
-                ? "border-indigo-500 bg-indigo-50 text-indigo-600"
-                : ""
-            } inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-200 focus:z-20`}
-          >
-            {page}
-          </button>
-        );
-      })}
-      <button
-        onClick={() => setCurrentPage(currentPage + 1)}
-        disabled={currentPage === pages.length}
-        className="inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-200 focus:z-20 disabled:bg-gray-200"
-      >
-        <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-      </button>
+    <div>
+      <nav aria-label="Page navigation example">
+        <ul className="flex h-10 items-center -space-x-px text-base">
+          <span className="mr-5 font-montserrat text-lg"> Total: {total}</span>
+
+          <li onClick={() => setPage(current - 1)}>
+            <button className="ms-0 flex h-10 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              <span className="sr-only">Previous</span>
+              <svg
+                className="h-3 w-3 rtl:rotate-180"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 1 1 5l4 4"
+                />
+              </svg>
+            </button>
+          </li>
+          {pageCount >= 1 &&
+            [...Array(pageCount)].map((_, index) => {
+              return (
+                <li
+                  key={index}
+                  onClick={() => setPage(index + 1)}
+                  className={`flex h-10 items-center justify-center border  px-4 leading-tight  ${
+                    index + 1 === current
+                      ? "border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                      : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  }`}
+                >
+                  {index + 1}
+                </li>
+              );
+            })}
+
+          <li onClick={() => setPage(current + 1)}>
+            <button className="flex h-10 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              <span className="sr-only">Next</span>
+              <svg
+                className="h-3 w-3 rtl:rotate-180"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 9 4-4-4-4"
+                />
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 };
-
 export default Pagination;
