@@ -12,7 +12,7 @@ const Pagination = ({
   const pageCount: number =
     Math.ceil(total / pageSize) === 0 ? 1 : Math.ceil(total / pageSize);
   return (
-    <div>
+    <div className="float-right">
       <nav aria-label="Page navigation example">
         <ul className="flex h-10 items-center -space-x-px text-base">
           <span className="mr-5 font-montserrat text-lg"> Total: {total}</span>
@@ -38,7 +38,7 @@ const Pagination = ({
             </button>
           </li>
           {pageCount >= 1 &&
-            [...Array(pageCount)].map((_, index) => {
+            Array.from({ length: pageCount }).map((_, index) => {
               return (
                 <li
                   key={index}

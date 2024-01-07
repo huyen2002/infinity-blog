@@ -5,5 +5,5 @@ export interface QueryParams {
 
 export const defaultParams: QueryParams = {
   page: 1,
-  size: 2,
+  size: 3,
 };

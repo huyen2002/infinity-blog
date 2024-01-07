@@ -1,4 +1,5 @@
 import z from "zod";
+import type { DataType } from "~/pages/home";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -54,7 +55,7 @@ export const postRouter = createTRPCRouter({
       return {
         total: count,
         data: posts,
-      };
+      } as DataType;
     }),
 
   getOneWhereId: publicProcedure.input(z.string()).query(({ ctx, input }) => {

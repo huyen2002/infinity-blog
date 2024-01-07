@@ -16,6 +16,7 @@ import {
   type InferGetServerSidePropsType,
 } from "next/types";
 import { Fragment, useEffect, useRef, useState } from "react";
+import LoadingScreen from "~/components/LoadingScreen";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 import Content from "../../components/Content";
@@ -155,286 +156,290 @@ const Post = (
   return (
     <Layout>
       <Navbar />
-      <Content>
-        <div
-          ref={postRef}
-          onScroll={handleScroll}
-          className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5"
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4 ">
-              <Image
-                src={props.post.author.image || ""}
-                alt="author"
-                width={40}
-                height={40}
-                className="h-12 w-12 rounded-full object-cover md:h-14 md:w-14"
-              />
-              <div className="flex flex-col gap-1">
-                <div className="flex gap-10">
-                  <h1 className="text-base font-medium md:text-lg lg:text-xl">
-                    {props.post.author.name}
-                  </h1>
-                  {props.post.authorId !== session?.user?.id && (
-                    <button
-                      onClick={handleFollow}
-                      className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden"
-                    >
-                      {isFollowed ? "Unfollow" : "Follow"}
-                    </button>
-                  )}
-                </div>
+      {props ? (
+        <Content>
+          <div
+            ref={postRef}
+            onScroll={handleScroll}
+            className="flex h-screen flex-col overflow-y-scroll scrollbar-hide md:w-4/5"
+          >
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4 ">
+                <Image
+                  src={props.post.author.image || ""}
+                  alt="author"
+                  width={40}
+                  height={40}
+                  className="h-12 w-12 rounded-full object-cover md:h-14 md:w-14"
+                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-10">
+                    <h1 className="text-base font-medium md:text-lg lg:text-xl">
+                      {props.post.author.name}
+                    </h1>
+                    {props.post.authorId !== session?.user?.id && (
+                      <button
+                        onClick={handleFollow}
+                        className="rounded-2xl bg-button px-2 py-2 text-sm text-white hover:bg-buttonHover md:hidden"
+                      >
+                        {isFollowed ? "Unfollow" : "Follow"}
+                      </button>
+                    )}
+                  </div>
 
-                <span className="text-sm font-normal text-textBio lg:text-base">
-                  {props.post.updatedAt.toString()}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-10 pl-2 pt-5 md:pl-0 md:pt-0">
-              <div className="relative inline-block text-left">
-                <div>
-                  <span className="rounded-md shadow-sm">
-                    <button
-                      type="button"
-                      className=""
-                      id="options-menu"
-                      aria-haspopup="false"
-                      aria-expanded={dropdownOpen}
-                      onClick={handleDropdownToggle}
-                    >
-                      {selectedCheckboxes.length === 0 ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="#757575"
-                          className="h-8 w-8"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="#757575"
-                          className="h-8 w-8"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </button>
+                  <span className="text-sm font-normal text-textBio lg:text-base">
+                    {props.post.updatedAt.toString()}
                   </span>
                 </div>
-                {dropdownOpen && (
-                  <div
-                    className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="options-menu"
-                  >
-                    {readLists &&
-                      readLists.map((readlist) => (
-                        <div
-                          key={readlist.id}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700"
-                        >
-                          <input
-                            type="checkbox"
-                            className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                            value={readlist.id}
-                            checked={selectedCheckboxes.includes(readlist.id)} // this is where we check if the item is in the array
-                            onChange={handleCheckboxChange}
-                          />
-                          <span className="ml-2">{readlist.name}</span>
-                        </div>
-                      ))}
-
-                    <button
-                      onClick={openModal}
-                      className="mt-4 w-full px-4 py-3 text-left text-sm font-medium text-button hover:text-buttonHover"
-                    >
-                      Create new readlist
-                    </button>
-                    <Transition appear show={isOpen} as={Fragment}>
-                      <Dialog
-                        as="div"
-                        className="relative z-10"
-                        onClose={closeModal}
-                      >
-                        <Transition.Child
-                          as={Fragment}
-                          enter="ease-out duration-300"
-                          enterFrom="opacity-0"
-                          enterTo="opacity-100"
-                          leave="ease-in duration-200"
-                          leaveFrom="opacity-100"
-                          leaveTo="opacity-0"
-                        >
-                          <div className="fixed inset-0 bg-black bg-opacity-25" />
-                        </Transition.Child>
-
-                        <div className="fixed inset-0 overflow-y-auto">
-                          <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                              as={Fragment}
-                              enter="ease-out duration-300"
-                              enterFrom="opacity-0 scale-95"
-                              enterTo="opacity-100 scale-100"
-                              leave="ease-in duration-200"
-                              leaveFrom="opacity-100 scale-100"
-                              leaveTo="opacity-0 scale-95"
-                            >
-                              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <Dialog.Title
-                                  as="h3"
-                                  className="text-lg font-medium leading-6 text-gray-900"
-                                >
-                                  Create new readlist
-                                </Dialog.Title>
-                                <div className="mt-4">
-                                  <input
-                                    type="text"
-                                    placeholder="Name"
-                                    value={nameReadlist}
-                                    onChange={(e) =>
-                                      setNameReadlist(e.target.value)
-                                    }
-                                    className="w-full rounded-lg border p-2 outline-none"
-                                  />
-                                </div>
-
-                                <div className="mt-8 flex justify-between">
-                                  <button
-                                    type="button"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                    onClick={handleCreateNewReadlist}
-                                  >
-                                    Create
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-200 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                                    onClick={closeModal}
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </Dialog.Panel>
-                            </Transition.Child>
-                          </div>
-                        </div>
-                      </Dialog>
-                    </Transition>
-                  </div>
-                )}
               </div>
-              <button className="flex items-center gap-1 rounded-xl border px-2 py-1 hover:bg-slate-100 md:hidden">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="#757575"
-                  className="h-8 w-8 text-textBio hover:text-textNavbar"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                  />
-                </svg>
-                <span className="text-sm font-normal text-textBio  md:text-xl">
-                  Save
-                </span>
-              </button>
+              <div className="flex items-center gap-10 pl-2 pt-5 md:pl-0 md:pt-0">
+                <div className="relative inline-block text-left">
+                  <div>
+                    <span className="rounded-md shadow-sm">
+                      <button
+                        type="button"
+                        className=""
+                        id="options-menu"
+                        aria-haspopup="false"
+                        aria-expanded={dropdownOpen}
+                        onClick={handleDropdownToggle}
+                      >
+                        {selectedCheckboxes.length === 0 ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="#757575"
+                            className="h-8 w-8"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="#757575"
+                            className="h-8 w-8"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    </span>
+                  </div>
+                  {dropdownOpen && (
+                    <div
+                      className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="options-menu"
+                    >
+                      {readLists &&
+                        readLists.map((readlist) => (
+                          <div
+                            key={readlist.id}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700"
+                          >
+                            <input
+                              type="checkbox"
+                              className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                              value={readlist.id}
+                              checked={selectedCheckboxes.includes(readlist.id)} // this is where we check if the item is in the array
+                              onChange={handleCheckboxChange}
+                            />
+                            <span className="ml-2">{readlist.name}</span>
+                          </div>
+                        ))}
 
-              <Link href={`./report/${props.post.id}`}>
-                {!isReported ? (
+                      <button
+                        onClick={openModal}
+                        className="mt-4 w-full px-4 py-3 text-left text-sm font-medium text-button hover:text-buttonHover"
+                      >
+                        Create new readlist
+                      </button>
+                      <Transition appear show={isOpen} as={Fragment}>
+                        <Dialog
+                          as="div"
+                          className="relative z-10"
+                          onClose={closeModal}
+                        >
+                          <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                          >
+                            <div className="fixed inset-0 bg-black bg-opacity-25" />
+                          </Transition.Child>
+
+                          <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                              <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                              >
+                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                  <Dialog.Title
+                                    as="h3"
+                                    className="text-lg font-medium leading-6 text-gray-900"
+                                  >
+                                    Create new readlist
+                                  </Dialog.Title>
+                                  <div className="mt-4">
+                                    <input
+                                      type="text"
+                                      placeholder="Name"
+                                      value={nameReadlist}
+                                      onChange={(e) =>
+                                        setNameReadlist(e.target.value)
+                                      }
+                                      className="w-full rounded-lg border p-2 outline-none"
+                                    />
+                                  </div>
+
+                                  <div className="mt-8 flex justify-between">
+                                    <button
+                                      type="button"
+                                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                      onClick={handleCreateNewReadlist}
+                                    >
+                                      Create
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="inline-flex justify-center rounded-md border border-transparent bg-red-200 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                      onClick={closeModal}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </Dialog.Panel>
+                              </Transition.Child>
+                            </div>
+                          </div>
+                        </Dialog>
+                      </Transition>
+                    </div>
+                  )}
+                </div>
+                <button className="flex items-center gap-1 rounded-xl border px-2 py-1 hover:bg-slate-100 md:hidden">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="#757575"
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-textBio hover:text-textNavbar"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
                     />
                   </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="h-8 w-8"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                )}
-              </Link>
+                  <span className="text-sm font-normal text-textBio  md:text-xl">
+                    Save
+                  </span>
+                </button>
+
+                <Link href={`./report/${props.post.id}`}>
+                  {!isReported ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="#757575"
+                      className="h-8 w-8"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="h-8 w-8"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  )}
+                </Link>
+              </div>
+            </div>
+
+            <div className="">
+              <h1 className="w-4/5 py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
+                {props.post.title}
+              </h1>
+              <div className="prose prose-sm md:prose-base lg:prose-lg">
+                {parse(props.post.content || "")}
+              </div>
+
+              <Options
+                published={props.post.published}
+                id={props.post.id}
+                reaction={props.post.reaction}
+              />
+              {/* <Comments currentUserId="1" /> */}
             </div>
           </div>
-
-          <div className="">
-            <h1 className="w-4/5 py-5 text-xl font-[700] text-title md:py-10 md:text-3xl lg:text-4xl">
-              {props.post.title}
-            </h1>
-            <div className="prose prose-sm md:prose-base lg:prose-lg">
-              {parse(props.post.content || "")}
-            </div>
-
-            <Options
-              published={props.post.published}
-              id={props.post.id}
-              reaction={props.post.reaction}
+          <RightContent>
+            <Image
+              src={props.post.author.image || ""}
+              alt="avatar"
+              width={768}
+              height={432}
+              className="h-20 w-20 rounded-full object-cover"
             />
-            {/* <Comments currentUserId="1" /> */}
-          </div>
-        </div>
-        <RightContent>
-          <Image
-            src={props.post.author.image || ""}
-            alt="avatar"
-            width={768}
-            height={432}
-            className="h-20 w-20 rounded-full object-cover"
-          />
-          <h1 className="text-lg font-medium md:text-xl">
-            {props.post.author.name}
-          </h1>
-          <span className=" text-sm font-normal  text-textBio md:text-base">{`${props.post.author.followedBy.length} Followers`}</span>
-          <p className=" text-lg font-normal text-textBio">
-            {props.post.author.bio}
-          </p>
-          {props.post.authorId !== session?.user.id && (
-            <button
-              title="follow"
-              onClick={handleFollow}
-              className="mt-10 flex h-8 w-20 items-center justify-center rounded-3xl bg-button px-2 py-2 text-base font-normal text-white hover:bg-buttonHover"
-            >
-              {isFollowed ? "UnFollow" : "Follow"}
-            </button>
-          )}
-        </RightContent>
-      </Content>
+            <h1 className="text-lg font-medium md:text-xl">
+              {props.post.author.name}
+            </h1>
+            <span className=" text-sm font-normal  text-textBio md:text-base">{`${props.post.author.followedBy.length} Followers`}</span>
+            <p className=" text-lg font-normal text-textBio">
+              {props.post.author.bio}
+            </p>
+            {props.post.authorId !== session?.user.id && (
+              <button
+                title="follow"
+                onClick={handleFollow}
+                className="mt-10 flex h-8 w-20 items-center justify-center rounded-3xl bg-button px-2 py-2 text-base font-normal text-white hover:bg-buttonHover"
+              >
+                {isFollowed ? "UnFollow" : "Follow"}
+              </button>
+            )}
+          </RightContent>
+        </Content>
+      ) : (
+        <LoadingScreen />
+      )}
     </Layout>
   );
 };

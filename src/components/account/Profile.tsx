@@ -29,18 +29,18 @@ function Profile({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-5">
       <Image
-        src={user?.image || "/avatar.png"}
-        width={100}
-        height={100}
+        src={user?.image || ""}
         alt="avatar"
-        className="max-w-none rounded-full object-cover md:h-28 md:w-28 xl:h-40 xl:w-40"
+        width={500}
+        height={500}
+        className="rounded-full md:h-28 md:w-28 xl:h-40 xl:w-40"
       />
       <h1 className="text-2xl font-medium text-textNavbar">{user?.name}</h1>
       <p className="text-lg font-normal">{user?.bio}</p>
       {session?.user?.id === id && <EditProfile />}
       <div className="flex items-center gap-2">
         <Link
-          href={`follower/${user?.id || ""}`}
+          href={`/follower/${user?.id || ""}`}
           className="text-xs font-semibold text-textNavbar md:text-base"
         >
           Follower
@@ -49,7 +49,7 @@ function Profile({ id }: { id: string }) {
       </div>
       <div className="flex items-center gap-2">
         <Link
-          href={`following/${user?.id || ""}`}
+          href={`/following/${user?.id || ""}`}
           className="text-xs font-semibold text-textNavbar md:text-base"
         >
           Following
@@ -81,9 +81,9 @@ export function SmProfile({ id }: { id: string }) {
   }
 
   return (
-    <div className="mt-5 flex flex-col gap-4 md:hidden">
+    <div className="z-100 mt-5 flex flex-col gap-4 md:hidden">
       <Image
-        src={user?.image || "/avatar.png"}
+        src={user?.image || ""}
         width={500}
         height={500}
         alt="avatar"

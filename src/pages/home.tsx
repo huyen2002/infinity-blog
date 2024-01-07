@@ -74,61 +74,63 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       );
                     })}
                 </div>
-                {posts &&
-                  posts.map((post) => {
-                    return (
-                      <div key={post.id}>
-                        <Link href={`/user/${post.authorId}`}>
-                          <div className="flex items-center gap-5 ">
-                            <div className="rounded-full ">
-                              <Image
-                                src={post?.author.image || ""}
-                                alt="author"
-                                width={40}
-                                height={40}
-                                className="h-12 w-12 rounded-full object-cover"
-                              />
-                            </div>
+                <div className="mb-5">
+                  {posts &&
+                    posts.map((post) => {
+                      return (
+                        <div key={post.id}>
+                          <Link href={`/user/${post.authorId}`}>
+                            <div className="flex items-center gap-5 ">
+                              <div className="rounded-full ">
+                                <Image
+                                  src={post?.author.image || ""}
+                                  alt="author"
+                                  width={40}
+                                  height={40}
+                                  className="h-12 w-12 rounded-full object-cover"
+                                />
+                              </div>
 
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium md:text-base">
-                                {post.author.name}
-                              </span>
-                              <span className="text-xs text-textBio md:text-sm">
-                                {post.updatedAt.toISOString()}
-                              </span>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium md:text-base">
+                                  {post.author.name}
+                                </span>
+                                <span className="text-xs text-textBio md:text-sm">
+                                  {post.updatedAt.toISOString()}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </Link>
-                        <Link href={`/post/${post.id}`}>
-                          <div className="flex items-center gap-5">
-                            <div className="my-4 flex flex-col gap-5">
-                              <h1 className="text-lg font-semibold text-title hover:text-titleHover md:text-xl">
-                                {post.title}
-                              </h1>
-                              <p className="text-sm font-normal text-textBio md:text-base">{`${getWordStr(
-                                {
-                                  str: post.description || "",
-                                  num: 50,
-                                }
-                              )}...`}</p>
+                          </Link>
+                          <Link href={`/post/${post.id}`}>
+                            <div className="flex items-center gap-5">
+                              <div className="my-4 flex flex-col gap-5">
+                                <h1 className="text-lg font-semibold text-title hover:text-titleHover md:text-xl">
+                                  {post.title}
+                                </h1>
+                                <p className="text-sm font-normal text-textBio md:text-base">{`${getWordStr(
+                                  {
+                                    str: post.description || "",
+                                    num: 50,
+                                  }
+                                )}...`}</p>
+                              </div>
+                              <div>
+                                <Image
+                                  src={post.feature || ""}
+                                  width={400}
+                                  height={400}
+                                  alt="post"
+                                  className="hidden rounded-sm object-cover lg:block"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <Image
-                                src={post.feature || ""}
-                                width={400}
-                                height={400}
-                                alt="post"
-                                className="hidden rounded-sm object-cover lg:block"
-                              />
-                            </div>
-                          </div>
-                        </Link>
-                      </div>
-                    );
-                  })}
+                          </Link>
+                        </div>
+                      );
+                    })}
+                </div>
                 <Pagination
-                  total={data?.total || 0}
+                  total={data && data?.total ? data.total : 0}
                   current={page}
                   pageSize={defaultParams.size}
                   setPage={(page: number) => handleSetPage(page)}
@@ -203,3 +205,7 @@ export async function getStaticProps() {
     },
   };
 }
+export type DataType = {
+  data: (Post & { author: User })[];
+  total: number;
+};
