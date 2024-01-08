@@ -1,3 +1,4 @@
+import type { Post, User } from "@prisma/client";
 import { type NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -17,19 +18,25 @@ const User: NextPage = () => {
   const router = useRouter();
   const { id } = router.query as { id: string };
   const { data: user, isFetching } = api.user.getOneWhereId.useQuery(id);
-  const posts = user?.post;
   const [page, setPage] = useState<number>(defaultParams.page);
+  const { data, isFetching: fetching } = api.post.getPostByUserId.useQuery({
+    id: id,
+    params: {
+      page: page,
+      size: defaultParams.size,
+    },
+  });
+  const posts: (Post & {
+    author: User;
+  })[] = data ? data.data : [];
   const handleSetPage = (page: number) => {
     setPage(page);
   };
 
-  const start = (page - 1) * defaultParams.size;
-  const end = page * defaultParams.size;
-  const separatePosts = posts?.slice(start, end);
   return (
     <Layout>
       <Navbar />
-      {!isFetching ? (
+      {!(isFetching && fetching) ? (
         <Content>
           <LeftContent>
             <h1 className="text-xl font-medium text-textNavbar md:text-3xl">
@@ -37,8 +44,8 @@ const User: NextPage = () => {
             </h1>
             <div>
               <div className="mb-5 flex w-full flex-col gap-5">
-                {separatePosts &&
-                  separatePosts.map((post) => {
+                {posts &&
+                  posts.map((post) => {
                     return (
                       <div
                         key={post.id}
@@ -68,7 +75,7 @@ const User: NextPage = () => {
             </div>
           </LeftContent>
           <RightContent>
-            <Profile id={id} />
+            <Profile user={user} />
           </RightContent>
         </Content>
       ) : (

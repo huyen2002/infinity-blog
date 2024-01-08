@@ -1,84 +1,70 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { type Follows, type User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 
-function Profile({ id }: { id: string }) {
+function Profile({ user }: { user: User | null | undefined }) {
   const { data: session } = useSession();
-  let user:
-    | (User & {
-        followedBy: (Follows & {
-          follower: User;
-        })[];
-        following: (Follows & {
-          following: User;
-        })[];
-      })
-    | null
-    | undefined;
-  if (session?.user?.id === id) {
-    user = api.user.me.useQuery().data;
-  } else {
-    user = api.user.getOneWhereId.useQuery(id).data;
-  }
+  const { data: followers, isFetching } =
+    api.follows.getFollowersByUserId.useQuery({
+      id: user?.id || "",
+      params: defaultParams,
+    });
+
+  const { data: followings, isFetching: fetching } =
+    api.follows.getFollowingsByUserId.useQuery({
+      id: user?.id || "",
+      params: defaultParams,
+    });
 
   return (
-    <div className="flex flex-col gap-5">
-      <Image
-        src={user?.image || ""}
-        alt="avatar"
-        width={500}
-        height={500}
-        className="rounded-full md:h-28 md:w-28 xl:h-40 xl:w-40"
-      />
-      <h1 className="text-2xl font-medium text-textNavbar">{user?.name}</h1>
-      <p className="text-lg font-normal">{user?.bio}</p>
-      {session?.user?.id === id && <EditProfile />}
-      <div className="flex items-center gap-2">
-        <Link
-          href={`/follower/${user?.id || ""}`}
-          className="text-xs font-semibold text-textNavbar md:text-base"
-        >
-          Follower
-        </Link>
-        <p>{user?.followedBy?.length}</p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Link
-          href={`/following/${user?.id || ""}`}
-          className="text-xs font-semibold text-textNavbar md:text-base"
-        >
-          Following
-        </Link>
-        <p>{user?.following?.length}</p>
-      </div>
+    <div>
+      {!isFetching && !fetching ? (
+        <div className="flex flex-col gap-5">
+          <Image
+            src={user?.image || ""}
+            alt="avatar"
+            width={500}
+            height={500}
+            className="rounded-full md:h-28 md:w-28 xl:h-40 xl:w-40"
+          />
+          <h1 className="text-2xl font-medium text-textNavbar">{user?.name}</h1>
+          <p className="text-lg font-normal">{user?.bio}</p>
+          {session?.user?.id === user?.id && <EditProfile />}
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/follower/${user?.id || ""}`}
+              className="text-xs font-semibold text-textNavbar md:text-base"
+            >
+              Follower
+            </Link>
+            <span>{followers?.total}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/following/${user?.id || ""}`}
+              className="text-xs font-semibold text-textNavbar md:text-base"
+            >
+              Following
+            </Link>
+            <span>{followings?.total}</span>
+          </div>
+        </div>
+      ) : (
+        <div />
+      )}
     </div>
   );
 }
 export default Profile;
 
-export function SmProfile({ id }: { id: string }) {
+export function SmProfile({ user }: { user: User | null | undefined }) {
   const { data: session } = useSession();
-  let user:
-    | (User & {
-        followedBy: (Follows & {
-          follower: User;
-        })[];
-        following: (Follows & {
-          following: User;
-        })[];
-      })
-    | null
-    | undefined;
-  if (session?.user?.id === id) {
-    user = api.user.me.useQuery().data;
-  } else {
-    user = api.user.getOneWhereId.useQuery(id).data;
-  }
 
   return (
     <div className="z-100 mt-5 flex flex-col gap-4 md:hidden">
@@ -94,15 +80,15 @@ export function SmProfile({ id }: { id: string }) {
       {/* <button className="rounded-full border border-blue-700 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-slate-100">
         Edit profile
       </button> */}
-      {session?.user?.id === id && <EditProfile />}
+      {session?.user?.id === user?.id && <EditProfile />}
 
       <div>
         <h2>Follower</h2>
-        <p>{user?.followedBy?.length}</p>
+        {/* <p>{user?.followedBy?.length}</p> */}
       </div>
       <div>
         <h2>Following</h2>
-        <p>{user?.following?.length}</p>
+        {/* <p>{user?.following?.length}</p> */}
       </div>
     </div>
   );

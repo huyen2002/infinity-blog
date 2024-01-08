@@ -14,18 +14,6 @@ export const userRouter = createTRPCRouter({
       where: {
         id: ctx.session.user.id,
       },
-      include: {
-        followedBy: {
-          include: {
-            follower: true,
-          },
-        },
-        following: {
-          include: {
-            following: true,
-          },
-        },
-      },
     });
   }),
 
@@ -42,21 +30,9 @@ export const userRouter = createTRPCRouter({
       where: {
         id: input,
       },
-      include: {
-        post: true,
-        followedBy: {
-          include: {
-            follower: true,
-          },
-        },
-        following: {
-          include: {
-            following: true,
-          },
-        },
-      },
     });
   }),
+
   edit: protectedProcedure
     .input(
       z.object({

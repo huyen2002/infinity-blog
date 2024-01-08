@@ -34,9 +34,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       size: defaultParams.size,
     },
   });
-  const posts: (Post & { author: User })[] = (data?.data || []) as (Post & {
-    author: User;
-  })[];
+  const posts: (Post & { author: User })[] = data ? data.data : [];
 
   // isFetching is true when the query is fetching
   // and false when the query is not fetching
@@ -205,7 +203,3 @@ export async function getStaticProps() {
     },
   };
 }
-export type DataType = {
-  data: (Post & { author: User })[];
-  total: number;
-};

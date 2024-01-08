@@ -1,5 +1,4 @@
 import z from "zod";
-import type { DataType } from "~/pages/home";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -55,7 +54,7 @@ export const postRouter = createTRPCRouter({
       return {
         total: count,
         data: posts,
-      } as DataType;
+      };
     }),
 
   getOneWhereId: publicProcedure.input(z.string()).query(({ ctx, input }) => {
@@ -74,17 +73,41 @@ export const postRouter = createTRPCRouter({
     });
   }),
 
-  getPostByUserId: publicProcedure.input(z.string()).query(({ input, ctx }) => {
-    return ctx.prisma.post.findMany({
-      where: {
-        authorId: input,
-        // published: true,
-      },
-      include: {
-        author: true,
-      },
-    });
-  }),
+  getPostByUserId: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        params: z.object({
+          page: z.number(),
+          size: z.number(),
+        }),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const [posts, count] = await ctx.prisma.$transaction([
+        ctx.prisma.post.findMany({
+          where: {
+            authorId: input.id,
+            published: true,
+          },
+          include: {
+            author: true,
+          },
+          skip: (input.params.page - 1) * input.params.size,
+          take: input.params.size,
+        }),
+        ctx.prisma.post.count({
+          where: {
+            authorId: input.id,
+            published: true,
+          },
+        }),
+      ]);
+      return {
+        data: posts,
+        total: count,
+      };
+    }),
 
   create: protectedProcedure
     .input(
