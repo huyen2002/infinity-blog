@@ -1,46 +1,70 @@
 import { Menu, Transition } from "@headlessui/react";
+import type { Post, User } from "@prisma/client";
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
+import LoadingScreen from "~/components/LoadingScreen";
+import Pagination from "~/components/Pagination";
+import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
 
 const Stories: NextPage = () => {
   const session = useSession();
 
-  const { data } = api.post.getPostByUserId.useQuery(
-    session.data?.user.id as string
-  );
-  const stories = data?.filter((post) => post.published);
+  const [page, setPage] = useState<number>(defaultParams.page);
+  const { data, isFetching } = api.post.getPostByUserId.useQuery({
+    id: session.data?.user.id || "",
+    params: {
+      page: page,
+      size: defaultParams.size,
+    },
+  });
+  const stories: (Post & {
+    author: User;
+  })[] = data ? data.data : [];
   return (
     <MainAccount>
       <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
         Stories
       </h1>
-      <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
-        {stories &&
-          stories.map((story) => {
-            return (
-              <div
-                key={story.id}
-                className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
-              >
-                <Link
-                  href={`/post/${story.id}`}
-                  className="text-lg font-medium text-textNavbar  hover:underline md:text-xl"
-                >
-                  {story.title}
-                </Link>
-                <div className="flex justify-between">
-                  <span className="text-sm text-textBio md:text-base">
-                    {`Published at ${story.updatedAt.toISOString()}`}
-                  </span>
-                  <MoreOptions />
-                </div>
-              </div>
-            );
-          })}
+
+      <div className="h-full ">
+        {!isFetching ? (
+          <div className="flex flex-col gap-5">
+            {stories &&
+              stories.map((story) => {
+                return (
+                  <div
+                    key={story.id}
+                    className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
+                  >
+                    <Link
+                      href={`/post/${story.id}`}
+                      className="text-lg font-medium text-textNavbar  hover:underline md:text-xl"
+                    >
+                      {story.title}
+                    </Link>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-textBio md:text-base">
+                        {`Published at ${story.updatedAt.toISOString()}`}
+                      </span>
+                      <MoreOptions />
+                    </div>
+                  </div>
+                );
+              })}
+            <Pagination
+              total={data ? data.total : 0}
+              current={page}
+              setPage={setPage}
+              pageSize={defaultParams.size}
+            />
+          </div>
+        ) : (
+          <LoadingScreen />
+        )}
       </div>
     </MainAccount>
   );

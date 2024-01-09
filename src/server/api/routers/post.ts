@@ -1,18 +1,38 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.post.findMany({
-      where: {
-        published: true,
-      },
-      include: {
-        author: true,
-        topic: true,
-        report: true,
-      },
-    });
-  }),
+  getAll: publicProcedure
+    .input(
+      z.object({
+        page: z.number(),
+        size: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const [posts, count] = await ctx.prisma.$transaction([
+        ctx.prisma.post.findMany({
+          where: {
+            published: true,
+          },
+          include: {
+            author: true,
+            topic: true,
+            report: true,
+          },
+          skip: (input.page - 1) * input.size,
+          take: input.size,
+        }),
+        ctx.prisma.post.count({
+          where: {
+            published: true,
+          },
+        }),
+      ]);
+      return {
+        data: posts,
+        total: count,
+      };
+    }),
 
   getAllWhereTopicId: publicProcedure
     .input(
@@ -109,6 +129,38 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
+  getDraftByUserId: protectedProcedure
+    .input(
+      z.object({
+        page: z.number(),
+        size: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const [drafts, count] = await ctx.prisma.$transaction([
+        ctx.prisma.post.findMany({
+          where: {
+            authorId: ctx.session.user.id,
+            published: false,
+          },
+          include: {
+            author: true,
+          },
+          skip: (input.page - 1) * input.size,
+          take: input.size,
+        }),
+        ctx.prisma.post.count({
+          where: {
+            authorId: ctx.session.user.id,
+            published: true,
+          },
+        }),
+      ]);
+      return {
+        data: drafts,
+        total: count,
+      };
+    }),
   create: protectedProcedure
     .input(
       z.object({

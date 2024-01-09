@@ -17,13 +17,26 @@ export const userRouter = createTRPCRouter({
     });
   }),
 
-  getAll: adminProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany({
-      include: {
-        post: true,
-      },
-    });
-  }),
+  getAll: adminProcedure
+    .input(
+      z.object({
+        page: z.number(),
+        size: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const [users, count] = await ctx.prisma.$transaction([
+        ctx.prisma.user.findMany({
+          skip: (input.page - 1) * input.size,
+          take: input.size,
+        }),
+        ctx.prisma.user.count(),
+      ]);
+      return {
+        total: count,
+        data: users,
+      };
+    }),
 
   getOneWhereId: publicProcedure.input(z.string()).query(({ ctx, input }) => {
     return ctx.prisma.user.findUnique({

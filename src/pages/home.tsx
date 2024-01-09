@@ -34,10 +34,9 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       size: defaultParams.size,
     },
   });
-  const posts: (Post & { author: User })[] = data ? data.data : [];
-
-  // isFetching is true when the query is fetching
-  // and false when the query is not fetching
+  const posts: (Post & { author: User })[] = data
+    ? (data.data as (Post & { author: User })[])
+    : [];
 
   useEffect(() => {
     setPage(defaultParams.page);
@@ -128,7 +127,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     })}
                 </div>
                 <Pagination
-                  total={data && data?.total ? data.total : 0}
+                  total={data ? (data.total as number) : 0}
                   current={page}
                   pageSize={defaultParams.size}
                   setPage={(page: number) => handleSetPage(page)}

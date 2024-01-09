@@ -3,15 +3,15 @@ import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import ConfirmModal from "~/components/ConfirmModal";
 import Content from "~/components/Content";
 import Layout from "~/components/Layout";
-import LeftContent from "~/components/LeftContent";
 import LoadingScreen from "~/components/LoadingScreen";
 import Navbar from "~/components/Navbar";
 import Pagination from "~/components/Pagination";
-import RightContent from "~/components/RightContent";
-import Profile, { SmProfile } from "~/components/account/Profile";
+import { SmProfile } from "~/components/account/Profile";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Following: NextPage = () => {
@@ -22,12 +22,14 @@ const Following: NextPage = () => {
     },
   });
   const handleUnFollow = (id: string) => {
+    console.log("id", id);
     mutation.mutate(id);
   };
   const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const { data: user } = api.user.getOneWhereId.useQuery(id);
+  const { data: user, isFetching: fetching } =
+    api.user.getOneWhereId.useQuery(id);
   const [page, setPage] = useState<number>(defaultParams.page);
 
   const { data, isFetching } = api.follows.getFollowingsByUserId.useQuery({
@@ -45,12 +47,25 @@ const Following: NextPage = () => {
     setPage(page);
   };
 
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log(mutation);
+    if (!mutation.isLoading) {
+      if (mutation.isSuccess) {
+        toast.success("Un follow account successfully");
+      }
+      if (mutation.error) {
+        toast.error(`Un follow account error: ${mutation.error.message}`);
+      }
+    }
+  }, [mutation.isLoading]);
   return (
     <Layout>
       <Navbar />
       <Content>
-        <LeftContent>
-          {!isFetching ? (
+        <div className=" h-full w-full">
+          {!isFetching && !fetching ? (
             <div className="flex flex-col gap-5">
               <SmProfile user={user} />
               <nav className="flex" aria-label="Breadcrumb">
@@ -98,85 +113,102 @@ const Following: NextPage = () => {
                   <span>{data?.total}</span>
                 </div>
                 <div className="">
-                  {followings && followings?.length > 0 && (
-                    <div className="mt-10 ">
-                      <table className="w-full text-left text-sm text-gray-500 ">
-                        <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
-                          <tr>
-                            <th scope="col" className="px-6 py-3">
-                              User
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Email
-                            </th>
-                            {session?.user.id === id && (
-                              <th scope="col" className="px-6 py-3"></th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {followings?.map((follow) => {
-                            return (
-                              <tr
-                                key={follow?.followingId}
-                                className="border-b bg-white  "
-                              >
-                                <td
-                                  scope="row"
-                                  className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
+                  {followings && followings.length > 0 ? (
+                    <div>
+                      <div className="mt-10 ">
+                        <table className="w-full text-left text-sm text-gray-500 ">
+                          <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
+                            <tr>
+                              <th scope="col" className="px-6 py-3">
+                                ID
+                              </th>
+                              <th scope="col" className="px-6 py-3">
+                                User
+                              </th>
+                              <th scope="col" className="px-6 py-3">
+                                Email
+                              </th>
+                              {session?.user.id === id && (
+                                <th scope="col" className="px-6 py-3"></th>
+                              )}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {followings?.map((follow) => {
+                              return (
+                                <tr
+                                  key={follow?.followingId}
+                                  className="border-b bg-white  "
                                 >
-                                  <Image
-                                    src={
-                                      follow?.following.image || "/avatar.png"
-                                    }
-                                    alt="avatar"
-                                    width={40}
-                                    height={40}
-                                    className="h-12 w-12 rounded-full"
-                                  />
-                                  <span>{follow?.following.name}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  {follow?.following.email}
-                                </td>
-                                {session?.user.id === id && (
-                                  <td className="px-6 py-4">
-                                    <button
-                                      onClick={() =>
-                                        handleUnFollow(follow?.followingId)
+                                  <td>{follow.followingId}</td>
+
+                                  <td
+                                    scope="row"
+                                    className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
+                                  >
+                                    <Image
+                                      src={
+                                        follow?.following.image || "/avatar.png"
                                       }
-                                      className="h-8 w-20 rounded-full border border-button text-buttonHover hover:bg-buttonHover hover:text-white"
-                                    >
-                                      Un follow
-                                    </button>
+                                      alt="avatar"
+                                      width={40}
+                                      height={40}
+                                      className="h-12 w-12 rounded-full"
+                                    />
+                                    <span>{follow?.following.name}</span>
                                   </td>
-                                )}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                                  <td className="px-6 py-4">
+                                    {follow?.following.email}
+                                  </td>
+                                  {session?.user.id === id && (
+                                    <td className="px-6 py-4">
+                                      <button
+                                        onClick={() => setOpenModal(true)}
+                                        className="h-8 w-20 rounded-full border border-button text-buttonHover hover:bg-buttonHover hover:text-white"
+                                      >
+                                        Un follow
+                                      </button>
+                                      <ConfirmModal
+                                        open={openModal}
+                                        setOpen={setOpenModal}
+                                        content="Are you sure to un follow this account? You can follow this account later."
+                                        buttonName="Un follow"
+                                        onClick={() =>
+                                          handleUnFollow(follow?.followingId)
+                                        }
+                                        isLoading={mutation.isLoading}
+                                      />
+                                    </td>
+                                  )}
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className=" mt-5">
+                        <Pagination
+                          current={page}
+                          total={data?.total || 0}
+                          setPage={(page) => handleSetPage(page)}
+                          pageSize={defaultParams.size}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-5">
+                      <span className="text-lg">
+                        This account has no following
+                      </span>
                     </div>
                   )}
-                  <div className=" mt-5">
-                    <Pagination
-                      current={page}
-                      total={data?.total || 0}
-                      setPage={(page) => handleSetPage(page)}
-                      pageSize={defaultParams.size}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
           ) : (
             <LoadingScreen />
           )}
-        </LeftContent>
-
-        <RightContent>
-          <Profile user={user} />
-        </RightContent>
+        </div>
       </Content>
     </Layout>
   );

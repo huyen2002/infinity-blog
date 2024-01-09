@@ -4,22 +4,23 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import ConfirmModal from "~/components/ConfirmModal";
 import Content from "~/components/Content";
 import Layout from "~/components/Layout";
-import LeftContent from "~/components/LeftContent";
 import LoadingScreen from "~/components/LoadingScreen";
 import Navbar from "~/components/Navbar";
 import Pagination from "~/components/Pagination";
-import RightContent from "~/components/RightContent";
-import Profile, { SmProfile } from "~/components/account/Profile";
+import { SmProfile } from "~/components/account/Profile";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Follower: NextPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const { data: user } = api.user.getOneWhereId.useQuery(id);
+  const { data: user, isFetching: fetching } =
+    api.user.getOneWhereId.useQuery(id);
   const [page, setPage] = useState<number>(defaultParams.page);
 
   const { data, isFetching } = api.follows.getFollowersByUserId.useQuery({
@@ -45,12 +46,25 @@ const Follower: NextPage = () => {
   const handleSetPage = (page: number) => {
     setPage(page);
   };
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log(mutation);
+    if (!mutation.isLoading) {
+      if (mutation.isSuccess) {
+        toast.success("Block account successfully");
+      }
+      if (mutation.error) {
+        toast.error(`Block account error: ${mutation.error.message}`);
+      }
+    }
+  }, [mutation.isLoading]);
   return (
     <Layout>
       <Navbar />
       <Content>
-        <LeftContent>
-          {!isFetching ? (
+        <div className=" h-full w-full">
+          {!isFetching && !fetching ? (
             <div className="flex w-full flex-col gap-5">
               <SmProfile user={user} />
 
@@ -91,7 +105,6 @@ const Follower: NextPage = () => {
                   </li>
                 </ol>
               </nav>
-
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-medium text-textNavbar">
@@ -99,89 +112,102 @@ const Follower: NextPage = () => {
                   </h1>
                   <span>{data?.total}</span>
                 </div>
-                {followers && followers?.length > 0 && (
-                  <div className="mt-10 overflow-x-auto">
-                    <table className="w-full text-left text-sm text-gray-500 ">
-                      <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
-                        <tr>
-                          <th scope="col" className="px-6 py-3">
-                            User
-                          </th>
-                          <th scope="col" className="px-6 py-3">
-                            Email
-                          </th>
+                {followers && followers.length > 0 ? (
+                  <div>
+                    <div className="mt-10 overflow-x-auto">
+                      <table className="w-full text-left text-sm text-gray-500 ">
+                        <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
+                          <tr>
+                            <th scope="col" className="px-6 py-3">
+                              User
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                              Email
+                            </th>
 
-                          {session?.user.id === id && (
-                            <th scope="col" className="px-6 py-3"></th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {followers?.map((follow) => {
-                          return (
-                            <tr
-                              key={follow?.followerId}
-                              className="border-b bg-white  "
-                            >
-                              <td
-                                scope="row"
-                                className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
+                            {session?.user.id === id && (
+                              <th scope="col" className="px-6 py-3"></th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {followers?.map((follow) => {
+                            return (
+                              <tr
+                                key={follow?.followerId}
+                                className="border-b bg-white  "
                               >
-                                <Link
-                                  href={`/user/${follow?.followerId}`}
-                                  className="flex items-center gap-2"
+                                <td
+                                  scope="row"
+                                  className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
                                 >
-                                  <Image
-                                    src={
-                                      follow?.follower.image || "/avatar.png"
-                                    }
-                                    alt="avatar"
-                                    width={40}
-                                    height={40}
-                                    className="h-12 w-12 rounded-full object-cover  "
-                                  />
-                                  <span>{follow?.follower.name}</span>
-                                </Link>
-                              </td>
-                              <td className="px-6 py-4">
-                                {follow?.follower.email}
-                              </td>
-                              {session?.user.id === id && (
-                                <td className="px-6 py-4">
-                                  <button
-                                    onClick={() =>
-                                      handleBlock(follow?.followerId || "")
-                                    }
-                                    className="h-8 w-14 rounded-full border border-button text-buttonHover hover:bg-buttonHover hover:text-white"
+                                  <Link
+                                    href={`/user/${follow?.followerId}`}
+                                    className="flex items-center gap-2"
                                   >
-                                    Block
-                                  </button>
+                                    <Image
+                                      src={
+                                        follow?.follower.image || "/avatar.png"
+                                      }
+                                      alt="avatar"
+                                      width={40}
+                                      height={40}
+                                      className="h-12 w-12 rounded-full object-cover  "
+                                    />
+                                    <span>{follow?.follower.name}</span>
+                                  </Link>
                                 </td>
-                              )}
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                                <td className="px-6 py-4">
+                                  {follow?.follower.email}
+                                </td>
+                                {session?.user.id === id && (
+                                  <td className="px-6 py-4">
+                                    <button
+                                      onClick={() => setOpenModal(true)}
+                                      className="h-8 w-14 rounded-full border border-button text-buttonHover hover:bg-buttonHover hover:text-white"
+                                    >
+                                      Block
+                                    </button>
+                                    <ConfirmModal
+                                      open={openModal}
+                                      setOpen={setOpenModal}
+                                      content="Are you sure to block this account? This account can't follow you."
+                                      buttonName="Block"
+                                      onClick={() =>
+                                        handleBlock(follow?.followerId)
+                                      }
+                                      isLoading={mutation.isLoading}
+                                    />
+                                  </td>
+                                )}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-5">
+                      <Pagination
+                        current={page}
+                        total={data?.total || 0}
+                        setPage={(page) => handleSetPage(page)}
+                        pageSize={defaultParams.size}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-5">
+                    <span className="text-lg">
+                      This account has no follower
+                    </span>
                   </div>
                 )}
-                <div className="mt-5">
-                  <Pagination
-                    current={page}
-                    total={data?.total || 0}
-                    setPage={(page) => handleSetPage(page)}
-                    pageSize={defaultParams.size}
-                  />
-                </div>
               </div>
             </div>
           ) : (
             <LoadingScreen />
           )}
-        </LeftContent>
-        <RightContent>
-          <Profile user={user} />
-        </RightContent>
+        </div>
       </Content>
     </Layout>
   );

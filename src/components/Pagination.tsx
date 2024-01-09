@@ -18,7 +18,7 @@ const Pagination = ({
           <span className="mr-5 font-montserrat text-lg"> Total: {total}</span>
 
           <li onClick={() => setPage(current - 1)}>
-            <button className="ms-0 flex h-10 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+            <button className="ms-0 flex h-10 cursor-pointer items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
               <span className="sr-only">Previous</span>
               <svg
                 className="h-3 w-3 rtl:rotate-180"
@@ -43,7 +43,7 @@ const Pagination = ({
                 <li
                   key={index}
                   onClick={() => setPage(index + 1)}
-                  className={`flex h-10 items-center justify-center border  px-4 leading-tight  ${
+                  className={` flex h-10 cursor-pointer items-center justify-center border  px-4 leading-tight  ${
                     index + 1 === current
                       ? "border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
                       : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
