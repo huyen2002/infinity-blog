@@ -22,6 +22,7 @@ import { prisma } from "~/server/db";
 
 type CreateContextOptions = {
   session: Session | null;
+  jwt: string | null;
 };
 
 /**
@@ -37,6 +38,7 @@ type CreateContextOptions = {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+
     prisma,
   };
 };

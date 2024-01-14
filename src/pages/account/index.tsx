@@ -2,39 +2,46 @@ import { Menu, Transition } from "@headlessui/react";
 import { type NextPage } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
+import LoadingScreen from "~/components/LoadingScreen";
 import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
 
 const Account: NextPage = () => {
-  const { data: readlists } = api.readlist.getAll.useQuery();
+  const { data: readlists, isFetching } = api.readlist.getAll.useQuery();
 
   return (
     <MainAccount>
       <h1 className="text-xl font-medium text-textNavbar md:mt-5 md:text-3xl">
         Lists
       </h1>
-      <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
-        {readlists &&
-          readlists.map((readlist) => {
-            return (
-              <div
-                key={readlist.id}
-                className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
-              >
-                <Link href={`/account/list/${readlist.id}`}>
-                  <h2 className="text-lg font-medium text-title hover:text-titleHover md:text-xl">
-                    {readlist.name}
-                  </h2>
-                </Link>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-textBio md:text-base">
-                    {`${readlist.posts.length} stories`}
-                  </span>
-                  <MoreOptions id={readlist.id} />
-                </div>
-              </div>
-            );
-          })}
+      <div className="h-full ">
+        {!isFetching ? (
+          <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
+            {readlists &&
+              readlists.map((readlist) => {
+                return (
+                  <div
+                    key={readlist.id}
+                    className="flex flex-col gap-5 rounded-lg bg-slate-100 px-2 py-5"
+                  >
+                    <Link href={`/account/list/${readlist.id}`}>
+                      <h2 className="text-lg font-medium text-title hover:text-titleHover md:text-xl">
+                        {readlist.name}
+                      </h2>
+                    </Link>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-textBio md:text-base">
+                        {`${readlist.posts.length} stories`}
+                      </span>
+                      <MoreOptions id={readlist.id} />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        ) : (
+          <LoadingScreen />
+        )}
       </div>
     </MainAccount>
   );

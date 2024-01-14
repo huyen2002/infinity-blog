@@ -19,7 +19,7 @@ export default function Navbar() {
               alt="logo"
             />
           </Link>
-          <div className="hidden h-10 items-center rounded-2xl bg-slate-100 text-base md:flex md:text-lg">
+          {/* <div className="hidden h-10 items-center rounded-2xl bg-slate-100 text-base md:flex md:text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -40,7 +40,7 @@ export default function Navbar() {
               placeholder="Search"
               className=" w-62 rounded-2xl bg-slate-100 px-1 py-2 text-textNavbar focus:outline-none"
             />
-          </div>
+          </div> */}
         </div>
         <div className="flex items-center gap-8">
           <Link

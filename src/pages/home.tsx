@@ -1,18 +1,18 @@
-import { type Post, type Topic, type User } from "@prisma/client";
-import { type InferGetStaticPropsType } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import LoadingScreen from "~/components/LoadingScreen";
-import Pagination from "~/components/Pagination";
-import { defaultParams } from "~/constants/QueryParams";
-import { prisma } from "~/server/db";
-import { api } from "~/utils/api";
-import Content from "../components/Content";
-import Layout from "../components/Layout";
-import LeftContent from "../components/LeftContent";
-import Navbar from "../components/Navbar";
-import RightContent from "../components/RightContent";
+import { type Post, type Topic, type User } from "@prisma/client"
+import { type InferGetStaticPropsType } from "next"
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import LoadingScreen from "~/components/LoadingScreen"
+import Pagination from "~/components/Pagination"
+import { defaultParams } from "~/constants/QueryParams"
+import { prisma } from "~/server/db"
+import { api } from "~/utils/api"
+import Content from "../components/Content"
+import Layout from "../components/Layout"
+import LeftContent from "../components/LeftContent"
+import Navbar from "../components/Navbar"
+import RightContent from "../components/RightContent"
 
 const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // const { data: topics } = api.topic.getAll.useQuery();

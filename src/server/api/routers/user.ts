@@ -1,6 +1,6 @@
 import { Status } from "@prisma/client";
+import bcrypt from "bcrypt";
 import { z } from "zod";
-
 import {
   adminProcedure,
   createTRPCRouter,
@@ -9,6 +9,45 @@ import {
 } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
+  create: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (
+        await ctx.prisma.user.findFirst({
+          where: {
+            email: input.email,
+          },
+        })
+      ) {
+        throw new Error("Email already exists");
+      }
+
+      const hashedPassword = (await bcrypt.hash(
+        input.password,
+        10
+      )) as unknown as string;
+
+      const user = await ctx.prisma.user.create({
+        data: {
+          email: input.email,
+          password: hashedPassword,
+          name: input.name,
+        },
+      });
+      await ctx.prisma.history.create({
+        data: {
+          userId: user.id,
+        },
+      });
+      return user;
+    }),
+
   me: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findUnique({
       where: {

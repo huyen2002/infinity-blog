@@ -16,6 +16,8 @@ module.exports = {
         title: "rgba(0, 0, 0, 0.8)",
         titleHover: "rgba(0, 0, 0, 0.6)",
         textBio: "#757575",
+        inputFocus: "#e6e3e3",
+        input: "#eaeaea",
       },
     },
   },

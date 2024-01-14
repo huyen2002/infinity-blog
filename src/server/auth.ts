@@ -1,14 +1,15 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcrypt";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -45,6 +46,10 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
+  // session: {
+  //   strategy: "jwt",
+  // },
+  // jwt: { encode, decode },
   events: {
     createUser: async (message) => {
       await prisma.history.create({
@@ -52,6 +57,7 @@ export const authOptions: NextAuthOptions = {
           userId: message.user.id,
         },
       });
+
       if (
         message.user.email &&
         env.ADMIN_EMAILS.split(",").includes(message.user.email)
@@ -66,6 +72,9 @@ export const authOptions: NextAuthOptions = {
         });
       }
     },
+  },
+  pages: {
+    signIn: "/auth/signin",
   },
 
   adapter: PrismaAdapter(prisma),
@@ -83,6 +92,40 @@ export const authOptions: NextAuthOptions = {
      *
      * @see https://next-auth.js.org/providers/github
      */
+
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "thanhhuyen@gmail.com",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials?.email,
+          },
+        });
+        if (!user) {
+          throw new Error("No user found");
+        } else {
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password as string
+          );
+          if (!isValid) {
+            throw new Error("Invalid password");
+          }
+          return user;
+        }
+      },
+    }),
+
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,

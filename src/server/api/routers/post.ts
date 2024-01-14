@@ -1,3 +1,4 @@
+import type { Post } from "@prisma/client";
 import z from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 export const postRouter = createTRPCRouter({
@@ -277,8 +278,8 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      const posts = history?.posts.map(({ post }) => post);
-      const isPostInHistory = posts?.find((post) => {
+      const posts = history?.posts.map(({ post }: { post: Post }) => post);
+      const isPostInHistory = posts?.find((post: Post) => {
         post.id === input;
       });
 
