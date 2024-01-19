@@ -1,18 +1,18 @@
-import { type Post, type Topic, type User } from "@prisma/client"
-import { type InferGetStaticPropsType } from "next"
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import LoadingScreen from "~/components/LoadingScreen"
-import Pagination from "~/components/Pagination"
-import { defaultParams } from "~/constants/QueryParams"
-import { prisma } from "~/server/db"
-import { api } from "~/utils/api"
-import Content from "../components/Content"
-import Layout from "../components/Layout"
-import LeftContent from "../components/LeftContent"
-import Navbar from "../components/Navbar"
-import RightContent from "../components/RightContent"
+import { type Post, type Topic, type User } from "@prisma/client";
+import { type InferGetStaticPropsType } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import LoadingScreen from "~/components/LoadingScreen";
+import Pagination from "~/components/Pagination";
+import { defaultParams } from "~/constants/QueryParams";
+import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
+import Content from "../components/Content";
+import Layout from "../components/Layout";
+import LeftContent from "../components/LeftContent";
+import Navbar from "../components/Navbar";
+import RightContent from "../components/RightContent";
 
 const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // const { data: topics } = api.topic.getAll.useQuery();
@@ -27,13 +27,18 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const [page, setPage] = useState<number>(defaultParams.page);
 
-  const { data, isFetching } = api.post.getAllWhereTopicId.useQuery({
-    topicId: active,
-    params: {
-      page: page,
-      size: defaultParams.size,
+  const { data, isFetching } = api.post.getAllWhereTopicId.useQuery(
+    {
+      topicId: active,
+      params: {
+        page: page,
+        size: defaultParams.size,
+      },
     },
-  });
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
   const posts: (Post & { author: User })[] = data
     ? (data.data as (Post & { author: User })[])
     : [];
@@ -127,7 +132,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     })}
                 </div>
                 <Pagination
-                  total={data ? (data.total as number) : 0}
+                  total={data ? data.total : 0}
                   current={page}
                   pageSize={defaultParams.size}
                   setPage={(page: number) => handleSetPage(page)}
