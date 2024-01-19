@@ -47,7 +47,10 @@ export const postRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       if (!input) {
-        return [];
+        return {
+          total: 0,
+          data: [],
+        };
       }
 
       const [posts, count] = await ctx.prisma.$transaction([
