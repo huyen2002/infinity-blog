@@ -38,7 +38,7 @@ function SignIn({
         password: data.password,
         callbackUrl: `${window.location.origin}/home`,
       });
-      console.log(result);
+      // console.log(result);
       if (result?.ok) toast.success("Login successfully");
       else toast.error(`Login failed ${result?.error ?? ""}`);
     } catch (error) {
