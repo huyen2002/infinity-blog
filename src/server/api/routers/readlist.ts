@@ -14,7 +14,14 @@ export const readlistRouter = createTRPCRouter({
 
   deleteOneWhereId: protectedProcedure
     .input(z.string())
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // delete all postReadlist relations
+      await ctx.prisma.postReadList.deleteMany({
+        where: {
+          readListId: input,
+        },
+      });
+      // delete readlist
       return ctx.prisma.readList.delete({
         where: {
           id: input,

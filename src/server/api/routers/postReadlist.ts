@@ -41,4 +41,14 @@ export const postReadlistRouter = createTRPCRouter({
         },
       });
     }),
+
+  deleteMany: protectedProcedure
+    .input(z.string())
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.postReadList.deleteMany({
+        where: {
+          readListId: input,
+        },
+      });
+    }),
 });

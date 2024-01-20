@@ -2,6 +2,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { type NextPage } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
+import { toast } from "react-toastify";
 import LoadingScreen from "~/components/LoadingScreen";
 import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
@@ -36,7 +37,9 @@ const Account: NextPage = () => {
                     </Link>
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-textBio md:text-base">
-                        {`${readlist.posts.length} stories`}
+                        {` ${readlist.posts.length}  ${
+                          readlist.posts.length <= 1 ? " story" : " stories"
+                        } `}
                       </span>
                       <MoreOptions id={readlist.id} />
                     </div>
@@ -56,7 +59,16 @@ export default Account;
 function MoreOptions({ id }: { id: string }) {
   const mutation = api.readlist.deleteOneWhereId.useMutation();
   const handleDelete = () => {
-    mutation.mutate(id);
+    mutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Deleted readlist successfully");
+        window.location.reload();
+      },
+      onError: () => {
+        if (mutation.error?.message)
+          toast.error(`Deleted readlist failed: ${mutation.error.message}`);
+      },
+    });
   };
   return (
     <div className="top-16 w-28 text-right">
@@ -90,7 +102,7 @@ function MoreOptions({ id }: { id: string }) {
         >
           <Menu.Items className="absolute right-0 mt-2 w-28 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="px-1 py-1 ">
-              <Menu.Item>
+              {/* <Menu.Item>
                 {({ active }) => (
                   <button
                     className={`${
@@ -100,7 +112,7 @@ function MoreOptions({ id }: { id: string }) {
                     Edit
                   </button>
                 )}
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item>
                 {({ active }) => (
                   <button

@@ -12,7 +12,6 @@ import Layout from "~/components/Layout";
 import LoadingScreen from "~/components/LoadingScreen";
 import Navbar from "~/components/Navbar";
 import Pagination from "~/components/Pagination";
-import { SmProfile } from "~/components/account/Profile";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Follower: NextPage = () => {
@@ -70,8 +69,6 @@ const Follower: NextPage = () => {
         <div className=" h-full w-full">
           {!isFetching && !fetching ? (
             <div className="flex w-full flex-col gap-5">
-              <SmProfile id={user?.id} />
-
               <nav className="flex" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 rtl:space-x-reverse md:space-x-2">
                   <li className="inline-flex items-center">

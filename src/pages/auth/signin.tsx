@@ -36,8 +36,7 @@ function SignIn({
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
-        // callbackUrl: `${window.location.origin}/home`,
+        callbackUrl: `${window.location.origin}/home`,
       });
       console.log(result);
       if (result?.ok) toast.success("Login successfully");

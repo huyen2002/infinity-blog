@@ -30,12 +30,18 @@ const SignUp: NextPage = () => {
   });
 
   const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
-    alert(JSON.stringify(data));
-    mutation.mutate({
-      email: data.email,
-      name: data.name,
-      password: data.password,
-    });
+    try {
+      mutation.mutate({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+      });
+      if (mutation.isError) {
+        toast.error(mutation.error.message);
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
   };
   return (
     <Layout>

@@ -11,7 +11,6 @@ import Layout from "~/components/Layout";
 import LoadingScreen from "~/components/LoadingScreen";
 import Navbar from "~/components/Navbar";
 import Pagination from "~/components/Pagination";
-import { SmProfile } from "~/components/account/Profile";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Following: NextPage = () => {
@@ -27,8 +26,12 @@ const Following: NextPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const { data: user, isFetching: fetching } =
-    api.user.getOneWhereId.useQuery(id);
+  const { data: user, isFetching: fetching } = api.user.getOneWhereId.useQuery(
+    id,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
   const [page, setPage] = useState<number>(defaultParams.page);
 
   const { data, isFetching } = api.follows.getFollowingsByUserId.useQuery(
@@ -68,7 +71,6 @@ const Following: NextPage = () => {
         <div className=" h-full w-full">
           {!isFetching && !fetching ? (
             <div className="flex flex-col gap-5">
-              <SmProfile id={user?.id} />
               <nav className="flex" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 rtl:space-x-reverse md:space-x-2">
                   <li className="inline-flex items-center">
