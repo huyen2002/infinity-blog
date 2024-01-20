@@ -20,7 +20,6 @@ const Report: NextPage = () => {
   });
   const { data: session } = useSession();
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log(data);
     mutation.mutate({
       postId: id,
       userId: session?.user?.id || "",

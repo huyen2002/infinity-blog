@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Content from "../Content";
 import Layout from "../Layout";
@@ -21,12 +20,12 @@ export default function MainAccount({
         <LeftContent>
           <Options />
           <div className="flex flex-col gap-10 border-t">
-            <SmProfile user={session?.user as User} />
+            <SmProfile id={session?.user.id} />
             {children}
           </div>
         </LeftContent>
         <RightContent>
-          <Profile user={session?.user as User} />
+          <Profile id={session?.user.id} />
         </RightContent>
       </Content>
     </Layout>

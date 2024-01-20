@@ -22,7 +22,6 @@ const Following: NextPage = () => {
     },
   });
   const handleUnFollow = (id: string) => {
-    console.log("id", id);
     mutation.mutate(id);
   };
   const { data: session } = useSession();
@@ -32,13 +31,16 @@ const Following: NextPage = () => {
     api.user.getOneWhereId.useQuery(id);
   const [page, setPage] = useState<number>(defaultParams.page);
 
-  const { data, isFetching } = api.follows.getFollowingsByUserId.useQuery({
-    id: id,
-    params: {
-      page: page,
-      size: defaultParams.size,
+  const { data, isFetching } = api.follows.getFollowingsByUserId.useQuery(
+    {
+      id: id,
+      params: {
+        page: page,
+        size: defaultParams.size,
+      },
     },
-  });
+    { refetchOnWindowFocus: false }
+  );
 
   const followings: (Follows & {
     following: User;
@@ -50,7 +52,6 @@ const Following: NextPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(mutation);
     if (!mutation.isLoading) {
       if (mutation.isSuccess) {
         toast.success("Un follow account successfully");
@@ -67,7 +68,7 @@ const Following: NextPage = () => {
         <div className=" h-full w-full">
           {!isFetching && !fetching ? (
             <div className="flex flex-col gap-5">
-              <SmProfile user={user} />
+              <SmProfile id={user?.id} />
               <nav className="flex" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 rtl:space-x-reverse md:space-x-2">
                   <li className="inline-flex items-center">

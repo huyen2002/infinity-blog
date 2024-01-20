@@ -82,7 +82,6 @@ const Write: NextPage = () => {
 
   const mutation = api.post.create.useMutation();
   const handleSaveAsDraft: SubmitHandler<FieldValues> = async (data) => {
-    console.log(data.title);
     mutation.mutate({
       title: data.title as string,
       description: data.description as string,

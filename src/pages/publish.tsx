@@ -12,9 +12,10 @@ import type { OurFileRouter } from "~/server/uploadthing";
 import { api } from "~/utils/api";
 const Publish: NextPage = () => {
   const router = useRouter();
-  console.log(router.query.title);
 
-  const { data: topics } = api.topic.getAll.useQuery();
+  const { data: topics } = api.topic.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const [filteredTopics, setFilteredTopics] = useState<Topic[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -40,9 +41,7 @@ const Publish: NextPage = () => {
       toast.success("Published successfully");
     },
   });
-  console.log(router.query.id);
   const handlePublish = () => {
-    // console.log("publish");
     if (router.query.id === undefined) {
       mutationPublish.mutate({
         title: router.query.title as string,
@@ -75,7 +74,6 @@ const Publish: NextPage = () => {
             endpoint="imageUploader"
             onClientUploadComplete={(res) => {
               // Do something with the response
-              console.log("Files: ", res);
               setFeaturedImage(res ? (res[0]?.fileUrl as string) : "");
               // alert("Upload Completed");
             }}

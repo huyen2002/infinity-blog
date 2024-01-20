@@ -19,13 +19,18 @@ const User: NextPage = () => {
   const { id } = router.query as { id: string };
   const { data: user, isFetching } = api.user.getOneWhereId.useQuery(id);
   const [page, setPage] = useState<number>(defaultParams.page);
-  const { data, isFetching: fetching } = api.post.getPostByUserId.useQuery({
-    id: id,
-    params: {
-      page: page,
-      size: defaultParams.size,
+  const { data, isFetching: fetching } = api.post.getPostByUserId.useQuery(
+    {
+      id: id,
+      params: {
+        page: page,
+        size: defaultParams.size,
+      },
     },
-  });
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
   const posts: (Post & {
     author: User;
   })[] = data ? data.data : [];
@@ -75,7 +80,7 @@ const User: NextPage = () => {
             </div>
           </LeftContent>
           <RightContent>
-            <Profile user={user} />
+            <Profile id={user?.id} />
           </RightContent>
         </Content>
       ) : (

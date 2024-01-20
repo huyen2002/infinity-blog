@@ -23,13 +23,16 @@ const Follower: NextPage = () => {
     api.user.getOneWhereId.useQuery(id);
   const [page, setPage] = useState<number>(defaultParams.page);
 
-  const { data, isFetching } = api.follows.getFollowersByUserId.useQuery({
-    id: id,
-    params: {
-      page: page,
-      size: defaultParams.size,
+  const { data, isFetching } = api.follows.getFollowersByUserId.useQuery(
+    {
+      id: id,
+      params: {
+        page: page,
+        size: defaultParams.size,
+      },
     },
-  });
+    { refetchOnWindowFocus: false }
+  );
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const followers: (Follows & {
     follower: User;
@@ -67,7 +70,7 @@ const Follower: NextPage = () => {
         <div className=" h-full w-full">
           {!isFetching && !fetching ? (
             <div className="flex w-full flex-col gap-5">
-              <SmProfile user={user} />
+              <SmProfile id={user?.id} />
 
               <nav className="flex" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 rtl:space-x-reverse md:space-x-2">

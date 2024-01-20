@@ -14,13 +14,16 @@ const Stories: NextPage = () => {
   const session = useSession();
 
   const [page, setPage] = useState<number>(defaultParams.page);
-  const { data, isFetching } = api.post.getPostByUserId.useQuery({
-    id: session.data?.user.id || "",
-    params: {
-      page: page,
-      size: defaultParams.size,
+  const { data, isFetching } = api.post.getPostByUserId.useQuery(
+    {
+      id: session.data?.user.id || "",
+      params: {
+        page: page,
+        size: defaultParams.size,
+      },
     },
-  });
+    { refetchOnWindowFocus: false }
+  );
   const stories: (Post & {
     author: User;
   })[] = data ? data.data : [];

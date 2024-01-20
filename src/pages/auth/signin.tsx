@@ -33,16 +33,20 @@ function SignIn({
   const onSubmit = async (data: IFormInput) => {
     try {
       setIsLoading(true);
-      await signIn("credentials", {
+      const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        callbackUrl: `${window.location.origin}/home`,
+        redirect: false,
+        // callbackUrl: `${window.location.origin}/home`,
       });
+      console.log(result);
+      if (result?.ok) toast.success("Login successfully");
+      else toast.error(`Login failed ${result?.error ?? ""}`);
+    } catch (error) {
+      console.log("Error", error);
     } finally {
       setIsLoading(false);
     }
-
-    toast.success("Login successfully");
   };
   return (
     <Layout>
@@ -170,7 +174,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const providers = await getProviders();
 
-  console.log("providers", providers);
   return {
     props: {
       providers: providers ?? [],

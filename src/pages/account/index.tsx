@@ -7,7 +7,12 @@ import { api } from "~/utils/api";
 import MainAccount from "../../components/account/MainAccount";
 
 const Account: NextPage = () => {
-  const { data: readlists, isFetching } = api.readlist.getAll.useQuery();
+  const { data: readlists, isFetching } = api.readlist.getAll.useQuery(
+    undefined,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   return (
     <MainAccount>

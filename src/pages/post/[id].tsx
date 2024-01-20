@@ -1,28 +1,28 @@
-import { Dialog, Transition } from "@headlessui/react"
+import { Dialog, Transition } from "@headlessui/react";
 import {
   Post,
   type Follows,
   type PostReadList,
   type Reaction,
   type User,
-} from "@prisma/client"
-import parse from "html-react-parser"
-import { useSession } from "next-auth/react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/router"
+} from "@prisma/client";
+import parse from "html-react-parser";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
-} from "next/types"
-import { Fragment, useEffect, useRef, useState } from "react"
-import LoadingScreen from "~/components/LoadingScreen"
-import { prisma } from "~/server/db"
-import { api } from "~/utils/api"
-import Content from "../../components/Content"
-import Layout from "../../components/Layout"
-import Navbar from "../../components/Navbar"
-import RightContent from "../../components/RightContent"
+} from "next/types";
+import { Fragment, useEffect, useRef, useState } from "react";
+import LoadingScreen from "~/components/LoadingScreen";
+import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
+import Content from "../../components/Content";
+import Layout from "../../components/Layout";
+import Navbar from "../../components/Navbar";
+import RightContent from "../../components/RightContent";
 
 const Post = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -30,7 +30,9 @@ const Post = (
   // const router = useRouter();
   // const { id } = router.query as { id: string };
   // const { data: post } = api.post.getOneWhereId.useQuery(id);
-  const { data: readLists } = api.readlist.getAll.useQuery();
+  const { data: readLists } = api.readlist.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDropdownToggle = () => {
@@ -41,12 +43,10 @@ const Post = (
   const readListsArr = readLists?.filter((item) =>
     item.posts.some((post) => post.postId === props.post.id)
   );
-  // console.log(test);
   const readListIds: Array<string> | undefined = readListsArr?.map(
     (item) => item.id
   );
 
-  // console.log(readLists);
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<Array<string>>(
     readListIds ?? []
   );
@@ -125,9 +125,7 @@ const Post = (
     setIsFollowed(followings ? true : false);
   }, [followings]);
 
-  // console.log(isFollowed);
   const handleFollow = () => {
-    // console.log(isFollowed);
     if (isFollowed === false) {
       mutationFollow.mutate(props.post.authorId);
       setIsFollowed(true);
@@ -144,11 +142,9 @@ const Post = (
     },
   });
   const handleScroll = () => {
-    console.log("scroll");
     if (postRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = postRef.current;
       if (scrollTop + clientHeight >= (scrollHeight * 2) / 3) {
-        console.log("reach bottom");
         mutationHistory.mutate(props.post.id);
       }
     }
@@ -522,7 +518,7 @@ function Options({
   };
   return (
     <div className="flex justify-center">
-      {!published && 
+      {!published && (
         // (<div className="fixed bottom-10 flex items-center gap-5 rounded-xl bg-slate-100 px-2 py-1">
         //   <button className="flex items-center gap-1" onClick={handleReaction}>
         //     {isActive ? (
@@ -573,8 +569,7 @@ function Options({
         //     <span className="text-lg font-normal text-textBio">Report</span>
         //   </Link>
         // </div>
-      // ):
-            (
+        // ):
         <div className="fixed bottom-10  ">
           <button
             onClick={() => handlePublish(id)}

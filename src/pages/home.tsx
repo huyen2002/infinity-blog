@@ -1,5 +1,6 @@
 import { type Post, type Topic, type User } from "@prisma/client";
 import { type InferGetStaticPropsType } from "next";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";

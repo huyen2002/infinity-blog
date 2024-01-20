@@ -6,6 +6,7 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import { decode, encode } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
@@ -20,6 +21,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      token: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -45,18 +47,34 @@ export const authOptions: NextAuthOptions = {
     // newUser: null, // If set, new users will be directed here on first sign in
   },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+          email: user.email,
+          image: user.image,
+        };
+      }
+      return token;
+    },
+
+    session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          id: token.id,
+          email: token.email,
+          image: token.image || null,
+        },
+      };
+    },
   },
-  // session: {
-  //   strategy: "jwt",
-  // },
-  // jwt: { encode, decode },
+
+  session: {
+    strategy: "jwt",
+  },
+  jwt: { encode, decode },
   events: {
     createUser: async (message) => {
       await prisma.history.create({

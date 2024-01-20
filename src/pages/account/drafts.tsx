@@ -12,10 +12,13 @@ import MainAccount from "../../components/account/MainAccount";
 
 const Drafts: NextPage = () => {
   const [page, setPage] = useState<number>(defaultParams.page);
-  const { data, isFetching } = api.post.getDraftByUserId.useQuery({
-    page: page,
-    size: defaultParams.size,
-  });
+  const { data, isFetching } = api.post.getDraftByUserId.useQuery(
+    {
+      page: page,
+      size: defaultParams.size,
+    },
+    { refetchOnWindowFocus: false }
+  );
   const drafts: (Post & {
     author: User;
   })[] = data ? data.data : [];

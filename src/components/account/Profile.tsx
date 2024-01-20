@@ -1,5 +1,4 @@
 import { Dialog, Transition } from "@headlessui/react";
-import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,17 +7,18 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 
-function Profile({ user }: { user: User | null | undefined }) {
+function Profile({ id }: { id: string | null | undefined }) {
+  const { data: user } = api.user.getOneWhereId.useQuery(id || "");
   const { data: session } = useSession();
   const { data: followers, isFetching } =
     api.follows.getFollowersByUserId.useQuery({
-      id: user?.id || "",
+      id: id || "",
       params: defaultParams,
     });
 
   const { data: followings, isFetching: fetching } =
     api.follows.getFollowingsByUserId.useQuery({
-      id: user?.id || "",
+      id: id || "",
       params: defaultParams,
     });
 
@@ -35,10 +35,10 @@ function Profile({ user }: { user: User | null | undefined }) {
           />
           <h1 className="text-2xl font-medium text-textNavbar">{user?.name}</h1>
           <p className="text-lg font-normal">{user?.bio}</p>
-          {session?.user?.id === user?.id && <EditProfile />}
+          {session?.user?.id === id && <EditProfile />}
           <div className="flex items-center gap-2">
             <Link
-              href={`/follower/${user?.id || ""}`}
+              href={`/follower/${id || ""}`}
               className="text-xs font-semibold text-textNavbar md:text-base"
             >
               Follower
@@ -47,7 +47,7 @@ function Profile({ user }: { user: User | null | undefined }) {
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href={`/following/${user?.id || ""}`}
+              href={`/following/${id || ""}`}
               className="text-xs font-semibold text-textNavbar md:text-base"
             >
               Following
@@ -63,7 +63,9 @@ function Profile({ user }: { user: User | null | undefined }) {
 }
 export default Profile;
 
-export function SmProfile({ user }: { user: User | null | undefined }) {
+export function SmProfile({ id }: { id: string | null | undefined }) {
+  const { data: user } = api.user.getOneWhereId.useQuery(id || "");
+
   const { data: session } = useSession();
 
   return (
@@ -111,10 +113,6 @@ function EditProfile() {
     setIsOpen(true);
   }
 
-  // function onSubmit(data: FormValues) {
-  //   console.log(data);
-  //   setIsOpen(false);
-  // }
   const utils = api.useContext();
   const mutation = api.user.edit.useMutation({
     onSuccess() {
@@ -122,7 +120,6 @@ function EditProfile() {
     },
   });
   const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
-    console.log(data);
     mutation.mutate({
       name: data.name,
       bio: data.bio,
