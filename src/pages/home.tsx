@@ -1,6 +1,5 @@
 import { type Post, type Topic, type User } from "@prisma/client";
 import { type InferGetStaticPropsType } from "next";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -86,7 +85,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                             <div className="flex items-center gap-5 ">
                               <div className="rounded-full ">
                                 <Image
-                                  src={post?.author.image || ""}
+                                  src={post?.author.image || "/blank_user.png"}
                                   alt="author"
                                   width={40}
                                   height={40}
@@ -118,13 +117,15 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                                 )}...`}</p>
                               </div>
                               <div>
-                                <Image
-                                  src={post.feature || ""}
-                                  width={400}
-                                  height={400}
-                                  alt="post"
-                                  className="hidden rounded-sm object-cover lg:block"
-                                />
+                                {post.feature && (
+                                  <Image
+                                    src={post.feature}
+                                    width={400}
+                                    height={400}
+                                    alt="post"
+                                    className="hidden rounded-sm object-cover lg:block"
+                                  />
+                                )}
                               </div>
                             </div>
                           </Link>

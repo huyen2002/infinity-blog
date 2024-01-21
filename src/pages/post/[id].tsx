@@ -162,7 +162,7 @@ const Post = (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4 ">
                 <Image
-                  src={props.post.author.image || ""}
+                  src={props.post.author.image || "/blank_user.png"}
                   alt="author"
                   width={40}
                   height={40}
@@ -409,7 +409,7 @@ const Post = (
           </div>
           <RightContent>
             <Image
-              src={props.post.author.image || ""}
+              src={props.post.author.image || "/blank_user.png"}
               alt="avatar"
               width={768}
               height={432}
