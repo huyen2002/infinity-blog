@@ -47,6 +47,7 @@ const Drafts: NextPage = () => {
       <div className=" h-full w-full">
         {!isFetching ? (
           <div className="h-full">
+            {drafts.length === 0 && <span>Draft is empty</span>}
             {drafts.length > 0 ? (
               <div className="flex flex-col gap-5">
                 {drafts.map((post) => {

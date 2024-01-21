@@ -23,6 +23,7 @@ const Account: NextPage = () => {
       <div className="h-full ">
         {!isFetching ? (
           <div className="flex h-[calc(100vh-400px)] w-full flex-col gap-5 overflow-y-scroll scrollbar-hide">
+            {readlists?.length === 0 && <span>List is empty</span>}
             {readlists &&
               readlists.map((readlist) => {
                 return (

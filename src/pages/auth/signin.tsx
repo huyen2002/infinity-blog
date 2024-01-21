@@ -6,6 +6,7 @@ import { getCsrfToken, getProviders, signIn } from "next-auth/react";
 
 import { getServerSession } from "next-auth";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -29,18 +30,20 @@ function SignIn({
   } = useForm<IFormInput>();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const router = useRouter();
   const onSubmit = async (data: IFormInput) => {
     try {
       setIsLoading(true);
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        callbackUrl: `${window.location.origin}/home`,
+        redirect: false,
       });
       // console.log(result);
-      if (result?.ok) toast.success("Login successfully");
-      else toast.error(`Login failed ${result?.error ?? ""}`);
+      if (result?.ok) {
+        await router.push("/home");
+        toast.success("Login successfully");
+      } else toast.error(`Login failed ${result?.error ?? ""}`);
     } catch (error) {
       console.log("Error", error);
     } finally {

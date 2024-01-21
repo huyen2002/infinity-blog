@@ -36,7 +36,9 @@ const Stories: NextPage = () => {
       <div className="h-full ">
         {!isFetching ? (
           <div className="flex flex-col gap-5">
-            {stories &&
+            {stories?.length === 0 && <span>Story is empty</span>}
+
+            {stories.length > 0 &&
               stories.map((story) => {
                 return (
                   <div
@@ -58,12 +60,14 @@ const Stories: NextPage = () => {
                   </div>
                 );
               })}
-            <Pagination
-              total={data ? data.total : 0}
-              current={page}
-              setPage={setPage}
-              pageSize={defaultParams.size}
-            />
+            {stories.length > 0 && (
+              <Pagination
+                total={data ? data.total : 0}
+                current={page}
+                setPage={setPage}
+                pageSize={defaultParams.size}
+              />
+            )}
           </div>
         ) : (
           <LoadingScreen />

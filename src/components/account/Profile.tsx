@@ -27,7 +27,7 @@ function Profile({ id }: { id: string | null | undefined }) {
       {!isFetching && !fetching ? (
         <div className="flex flex-col gap-5">
           <Image
-            src={user?.image || ""}
+            src={user?.image || "/blank_user.png"}
             alt="avatar"
             width={500}
             height={500}
@@ -71,7 +71,7 @@ export function SmProfile({ id }: { id: string | null | undefined }) {
   return (
     <div className="z-100 mt-5 flex flex-col gap-4 md:hidden">
       <Image
-        src={user?.image || ""}
+        src={user?.image || "/blank_user.png"}
         width={500}
         height={500}
         alt="avatar"
