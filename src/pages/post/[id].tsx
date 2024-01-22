@@ -19,6 +19,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import LoadingScreen from "~/components/LoadingScreen";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
+import { DateTimeUtils } from "~/utils/dateTime";
 import Content from "../../components/Content";
 import Layout from "../../components/Layout";
 import Navbar from "../../components/Navbar";
@@ -152,7 +153,7 @@ const Post = (
   return (
     <Layout>
       <Navbar />
-      {props ? (
+      {props.post ? (
         <Content>
           <div
             ref={postRef}
@@ -184,7 +185,7 @@ const Post = (
                   </div>
 
                   <span className="text-sm font-normal text-textBio lg:text-base">
-                    {props.post.updatedAt.toString()}
+                    {DateTimeUtils.getFullDate(props.post.updatedAt)}
                   </span>
                 </div>
               </div>

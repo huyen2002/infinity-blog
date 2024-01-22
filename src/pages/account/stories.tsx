@@ -8,6 +8,7 @@ import LoadingScreen from "~/components/LoadingScreen";
 import Pagination from "~/components/Pagination";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
+import { DateTimeUtils } from "~/utils/dateTime";
 import MainAccount from "../../components/account/MainAccount";
 
 const Stories: NextPage = () => {
@@ -53,7 +54,9 @@ const Stories: NextPage = () => {
                     </Link>
                     <div className="flex justify-between">
                       <span className="text-sm text-textBio md:text-base">
-                        {`Published at ${story.updatedAt.toISOString()}`}
+                        {`Published at ${DateTimeUtils.getFullDate(
+                          story.updatedAt
+                        )}`}
                       </span>
                       <MoreOptions />
                     </div>

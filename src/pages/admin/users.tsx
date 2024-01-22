@@ -5,15 +5,20 @@ import { useState } from "react";
 import LoadingScreen from "~/components/LoadingScreen";
 import Pagination from "~/components/Pagination";
 import Sidebar from "~/components/admin/Sidebar";
-import { defaultParams } from "~/constants/QueryParams";
+import { defaultParams, defaultParamsAdmin } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Users = () => {
   const [page, setPage] = useState<number>(defaultParams.page);
 
-  const { data, isFetching } = api.user.getAll.useQuery({
-    page: page,
-    size: defaultParams.size,
-  });
+  const { data, isFetching } = api.user.getAll.useQuery(
+    {
+      page: page,
+      size: defaultParamsAdmin.size,
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const users: User[] = data ? data.data : [];
   return (
@@ -62,7 +67,7 @@ const Users = () => {
                             className="flex items-center gap-2"
                           >
                             <Image
-                              src={user?.image || "/avatar.png"}
+                              src={user?.image || "/blank_user.png"}
                               alt="avatar"
                               width={40}
                               height={40}
@@ -89,7 +94,7 @@ const Users = () => {
               total={data ? data.total : 0}
               setPage={setPage}
               current={page}
-              pageSize={defaultParams.size}
+              pageSize={defaultParamsAdmin.size}
             />
           </div>
         </div>

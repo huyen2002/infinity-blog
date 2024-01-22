@@ -18,8 +18,12 @@ const Follower: NextPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const { data: user, isFetching: fetching } =
-    api.user.getOneWhereId.useQuery(id);
+  const { data: user, isFetching: fetching } = api.user.getOneWhereId.useQuery(
+    id,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
   const [page, setPage] = useState<number>(defaultParams.page);
 
   const { data, isFetching } = api.follows.getFollowersByUserId.useQuery(
@@ -148,7 +152,8 @@ const Follower: NextPage = () => {
                                   >
                                     <Image
                                       src={
-                                        follow?.follower.image || "/avatar.png"
+                                        follow?.follower.image ||
+                                        "/blank_user.png"
                                       }
                                       alt="avatar"
                                       width={40}

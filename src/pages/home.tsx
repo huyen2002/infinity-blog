@@ -13,10 +13,9 @@ import Layout from "../components/Layout";
 import LeftContent from "../components/LeftContent";
 import Navbar from "../components/Navbar";
 import RightContent from "../components/RightContent";
+import { DateTimeUtils } from "~/utils/dateTime";
 
 const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  // const { data: topics } = api.topic.getAll.useQuery();
-
   const topics: Topic[] | undefined = props.topics;
   const [active, setActive] = useState<string>(
     topics && topics[0] ? topics[0].id : ""
@@ -98,7 +97,7 @@ const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                                   {post.author.name}
                                 </span>
                                 <span className="text-xs text-textBio md:text-sm">
-                                  {post.updatedAt.toISOString()}
+                                  {DateTimeUtils.getFullDate(post.createdAt)}
                                 </span>
                               </div>
                             </div>

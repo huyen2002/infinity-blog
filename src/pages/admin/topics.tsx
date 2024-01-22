@@ -2,7 +2,9 @@ import LoadingScreen from "~/components/LoadingScreen";
 import Sidebar from "~/components/admin/Sidebar";
 import { api } from "~/utils/api";
 const Topics = () => {
-  const { data, isFetching } = api.topic.getAll.useQuery();
+  const { data, isFetching } = api.topic.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <div className="mr-10 flex">

@@ -8,6 +8,7 @@ import LoadingScreen from "~/components/LoadingScreen";
 import Pagination from "~/components/Pagination";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
+import { DateTimeUtils } from "~/utils/dateTime";
 import MainAccount from "../../components/account/MainAccount";
 
 const Drafts: NextPage = () => {
@@ -47,7 +48,6 @@ const Drafts: NextPage = () => {
       <div className=" h-full w-full">
         {!isFetching ? (
           <div className="h-full">
-            {drafts.length === 0 && <span>Draft is empty</span>}
             {drafts.length > 0 ? (
               <div className="flex flex-col gap-5">
                 {drafts.map((post) => {
@@ -64,7 +64,9 @@ const Drafts: NextPage = () => {
                       </Link>
                       <div className="flex justify-between">
                         <span className="font-xs text-sm text-textBio md:text-sm">
-                          {`Update at ${post.updatedAt.toISOString()}`}
+                          {`Update at ${DateTimeUtils.getFullDate(
+                            post.updatedAt
+                          )}`}
                         </span>
                         <div className="top-16 w-28 text-right">
                           <Menu

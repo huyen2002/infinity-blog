@@ -5,14 +5,19 @@ import { useState } from "react";
 import LoadingScreen from "~/components/LoadingScreen";
 import Pagination from "~/components/Pagination";
 import Sidebar from "~/components/admin/Sidebar";
-import { defaultParams } from "~/constants/QueryParams";
+import { defaultParams, defaultParamsAdmin } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
 const Posts = () => {
   const [page, setPage] = useState<number>(defaultParams.page);
-  const { data, isFetching } = api.post.getAll.useQuery({
-    page: page,
-    size: defaultParams.size,
-  });
+  const { data, isFetching } = api.post.getAll.useQuery(
+    {
+      page: page,
+      size: defaultParamsAdmin.size,
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const posts: (Post & {
     topic: Topic | null;
@@ -80,7 +85,7 @@ const Posts = () => {
                             className="flex items-center gap-2"
                           >
                             <Image
-                              src={post?.author?.image || "/avatar.png"}
+                              src={post?.author?.image || "/blank_user.png"}
                               alt="avatar"
                               width={40}
                               height={40}
@@ -113,7 +118,7 @@ const Posts = () => {
               total={data ? data.total : 0}
               current={page}
               setPage={setPage}
-              pageSize={defaultParams.size}
+              pageSize={defaultParamsAdmin.size}
             />
           </div>
         </div>

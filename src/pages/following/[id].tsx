@@ -123,9 +123,6 @@ const Following: NextPage = () => {
                           <thead className="bg-gray-50 text-xs uppercase text-gray-700 ">
                             <tr>
                               <th scope="col" className="px-6 py-3">
-                                ID
-                              </th>
-                              <th scope="col" className="px-6 py-3">
                                 User
                               </th>
                               <th scope="col" className="px-6 py-3">
@@ -143,15 +140,14 @@ const Following: NextPage = () => {
                                   key={follow?.followingId}
                                   className="border-b bg-white  "
                                 >
-                                  <td>{follow.followingId}</td>
-
                                   <td
                                     scope="row"
                                     className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900 "
                                   >
                                     <Image
                                       src={
-                                        follow?.following.image || "/avatar.png"
+                                        follow?.following.image ||
+                                        "/blank_user.png"
                                       }
                                       alt="avatar"
                                       width={40}

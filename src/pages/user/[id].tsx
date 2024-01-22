@@ -13,6 +13,7 @@ import RightContent from "~/components/RightContent";
 import Profile from "~/components/account/Profile";
 import { defaultParams } from "~/constants/QueryParams";
 import { api } from "~/utils/api";
+import { DateTimeUtils } from "~/utils/dateTime";
 
 const User: NextPage = () => {
   const router = useRouter();
@@ -64,7 +65,9 @@ const User: NextPage = () => {
                         </Link>
                         <div className="flex justify-between">
                           <span className="text-sm text-textBio md:text-base">
-                            {`Published at ${post.updatedAt.toISOString()}`}
+                            {`Published at ${DateTimeUtils.getFullDate(
+                              post.updatedAt
+                            )}`}
                           </span>
                         </div>
                       </div>
